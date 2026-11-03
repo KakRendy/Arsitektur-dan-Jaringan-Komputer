@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modul Interaktif — Sistem Bilangan</title>
+<style>
+:root{--navy:#142b4a;--blue:#2463a6;--cyan:#dff3f7;--ink:#243247;--muted:#65748a;--bg:#f3f6fa;--line:#dce4ee;--white:#fff;--green:#16835d;--red:#c44747;--amber:#a86c12;--shadow:0 8px 28px rgba(22,45,75,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 Inter,Segoe UI,Arial,sans-serif}
+header{background:linear-gradient(120deg,#142b4a,#245f91);color:#fff;padding:32px 20px 28px}
+.hero{max-width:1160px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800;color:#b8d9ed}.hero h1{font-size:clamp(27px,4vw,42px);line-height:1.15;margin:8px 0}.hero p{max-width:760px;color:#e1edf7;margin:10px 0 0}
+.shell{max-width:1160px;margin:22px auto;padding:0 16px;display:grid;grid-template-columns:255px minmax(0,1fr);gap:20px}
+aside{align-self:start;position:sticky;top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+aside h3{font-size:13px;margin:0 0 10px;color:var(--navy)}nav a{display:block;text-decoration:none;color:#4c5c70;padding:8px 10px;border-radius:8px;font-size:13px;margin:2px 0}nav a:hover{background:#edf4fb;color:var(--blue)}
+main{min-width:0}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px;margin-bottom:17px;box-shadow:var(--shadow)}
+h2{font-size:23px;color:var(--navy);margin:0 0 13px;line-height:1.3}h3{color:var(--navy);margin:20px 0 8px;font-size:18px}h4{margin:14px 0 6px;color:#304966}p{margin:8px 0}.lead{font-size:16px;color:#45566d}.tag{display:inline-block;background:#eaf2fb;color:#245f91;padding:3px 9px;border-radius:30px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.note{background:#eef6fb;border-left:4px solid #4384b7;padding:12px 14px;border-radius:8px;margin:14px 0}.warning{background:#fff7e9;border-left:4px solid #d69b35;padding:12px 14px;border-radius:8px;margin:14px 0}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:5px}.field input,.answer-input{width:100%;border:1px solid #cbd6e2;border-radius:9px;padding:11px 12px;font:inherit;background:#fff;color:var(--ink)}input:focus{outline:3px solid #cfe4fa;border-color:#4384b7}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left}th{background:#eef3f8;color:#28415e}
+.math{background:#f5f8fc;border:1px solid #e2eaf2;border-radius:9px;padding:12px 14px;margin:10px 0;font-family:Cambria,Georgia,serif;font-size:17px;overflow-wrap:anywhere}
+.steps{counter-reset:step;list-style:none;padding:0}.steps li{counter-increment:step;position:relative;padding:7px 0 7px 38px}.steps li:before{content:counter(step);position:absolute;left:0;top:6px;background:#e5eff9;color:#245f91;width:26px;height:26px;border-radius:50%;text-align:center;font-weight:800;line-height:26px}
+.exercise{border:1px solid #d9e4ef;border-radius:12px;padding:15px;margin:14px 0;background:#fbfdff}.exercise-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.exercise h4{margin:0}.question{font-weight:700;margin:12px 0 7px}.answer-row{display:flex;gap:8px;align-items:center}.answer-row input{flex:1;min-width:0}.btn{border:0;border-radius:9px;background:var(--blue);color:#fff;padding:10px 15px;font-weight:700;cursor:pointer;font:inherit}.btn:hover{filter:brightness(.94)}.btn.secondary{background:#e8eff7;color:#284c70}.btn.dark{background:var(--navy)}.btn:disabled{opacity:.5;cursor:not-allowed}.feedback{font-size:13px;font-weight:700;margin-top:7px;min-height:20px}.correct{color:var(--green)}.incorrect{color:var(--red)}
+.progress-wrap{height:10px;background:#e8edf3;border-radius:20px;overflow:hidden;margin:8px 0}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#2463a6,#35a1a0);transition:width .25s}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#f2f6fa;border-radius:10px;padding:12px}.stat b{display:block;font-size:22px;color:var(--navy)}.stat span{font-size:12px;color:var(--muted)}
+.gamebox{background:linear-gradient(145deg,#102a49,#1f527b);color:#fff;border-radius:14px;padding:20px}.gamebox h3{color:#fff;margin-top:0}.game-display{font-size:clamp(30px,6vw,52px);font-weight:800;letter-spacing:4px;text-align:center;padding:14px;color:#fff}.game-meta{display:flex;justify-content:space-between;gap:10px;color:#d6e8f6;font-size:13px}.gamebox input{width:100%;padding:13px;border-radius:9px;border:2px solid #8fb4d0;font-size:20px;text-align:center;margin:10px 0}.gamebox .btn{background:#f0c66b;color:#26364a}.game-result{min-height:25px;text-align:center;font-weight:700}
+footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
+@media(max-width:850px){.shell{grid-template-columns:1fr}aside{position:static}nav{display:grid;grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}}
+@media(max-width:520px){.card{padding:16px}.statgrid{grid-template-columns:1fr 1fr}.answer-row{flex-direction:column;align-items:stretch}.exercise-head{align-items:flex-start;flex-direction:column}}
+@media print{aside,.btn,.gamebox{display:none!important}.shell{display:block}.card{box-shadow:none;break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<header><div class="hero">
+<div class="eyebrow">Modul Perkuliahan • Arsitektur dan Jaringan Komputer</div>
+<h1>Sistem Bilangan<br><span style="color:#b8d9ed">(Number Systems)</span></h1>
+<p>Materi akademis dan latihan interaktif untuk memahami sistem desimal, biner, oktal, heksadesimal, serta konversi antar sistem bilangan.</p>
+</div></header>
+<div class="shell">
+<aside>
+<h3>NAVIGASI MATERI</h3>
+<nav>
+<a href="#identitas">Identitas Mahasiswa</a><a href="#konsep">1. Konsep Sistem Bilangan</a>
+<a href="#macam">2. Macam Sistem Bilangan</a><a href="#nilai">3. Nilai Tempat</a>
+<a href="#d-b">4. Desimal → Biner</a><a href="#b-d">5. Biner → Desimal</a>
+<a href="#d-o">6. Desimal → Oktal</a><a href="#o-d">7. Oktal → Desimal</a>
+<a href="#d-h">8. Desimal → Heksadesimal</a><a href="#h-d">9. Heksadesimal → Desimal</a>
+<a href="#langsung">10. Konversi Langsung</a><a href="#game">Mini Game Biner</a>
+<a href="#rekap">Progres & Unduh Jawaban</a>
+</nav>
+<div style="margin-top:14px;font-size:12px;color:#65748a">Progres latihan</div><div class="progress-wrap"><div class="progress-bar" id="sideProgress"></div></div><b id="sideCount" style="font-size:13px">0 dari 22 soal diperiksa</b>
+</aside>
+<main>
+<section class="card" id="identitas">
+<span class="tag">MULAI DI SINI</span><h2>Identitas Mahasiswa</h2>
+<p class="lead">Isi identitas sebelum mengerjakan latihan. Identitas ini akan dicantumkan pada laporan TXT.</p>
+<div class="formgrid">
+<div class="field"><label for="studentName">Nama lengkap</label><input id="studentName" placeholder="Masukkan nama mahasiswa" autocomplete="name"></div>
+<div class="field"><label for="studentNpm">NPM (opsional)</label><input id="studentNpm" placeholder="Masukkan NPM"></div>
+</div>
+<p style="font-size:12px;color:#65748a">Tanggal dan waktu pengerjaan dicatat otomatis berdasarkan jam perangkat saat laporan diunduh.</p>
+</section>
+
+<section class="card" id="konsep"><span class="tag">MATERI 01</span><h2>1. Pengertian Sistem Bilangan</h2>
+<p class="lead"><b>Sistem bilangan (number system)</b> adalah cara merepresentasikan suatu nilai menggunakan sekumpulan simbol atau digit berdasarkan aturan dan basis tertentu.</p>
+<p>Basis atau <i>radix</i> menunjukkan banyaknya simbol digit yang digunakan dalam suatu sistem bilangan. Setiap sistem bilangan mempunyai aturan penggunaan digit dan nilai tempat.</p>
+<div class="note"><b>Contoh:</b> sistem desimal menggunakan sepuluh simbol (0–9), sedangkan sistem biner hanya menggunakan dua simbol (0 dan 1).</div>
+<p>Dalam konteks komputasi, sistem bilangan diperlukan untuk merepresentasikan data secara terstruktur. Pembelajaran pada modul ini berfokus pada empat sistem bilangan: desimal, biner, oktal, dan heksadesimal.</p>
+</section>
+
+<section class="card" id="macam"><span class="tag">MATERI 02</span><h2>2. Macam-Macam Sistem Bilangan</h2>
+<h3>2.1 Desimal (Decimal)</h3><p><b>Basis 10</b>, menggunakan sepuluh digit: 0, 1, 2, 3, 4, 5, 6, 7, 8, dan 9. Sistem ini umum digunakan dalam aktivitas sehari-hari.</p><div class="math">Contoh: 125<sub>10</sub>, 250<sub>10</sub>, 1024<sub>10</sub></div>
+<div class="note"><b>Contoh penggunaan nyata:</b> sistem desimal digunakan dalam aktivitas sehari-hari, seperti menyatakan harga barang (Rp25.000), panjang (2,5 meter), berat (1,5 kilogram), dan jumlah barang. Manusia umumnya menggunakan desimal karena mudah dibaca dan dihitung.</div>
+<h3>2.2 Biner (Binary)</h3><p><b>Basis 2</b>, hanya menggunakan dua digit, yaitu 0 dan 1. Sistem biner merupakan bentuk representasi dasar pada sistem digital.</p><div class="math">Contoh: 1010<sub>2</sub>, 1101<sub>2</sub>, 101101<sub>2</sub></div>
+<div class="note"><b>Contoh penggunaan nyata:</b> komputer merepresentasikan data digital dalam bentuk bit 0 dan 1. Kondisi logika rendah dan tinggi pada rangkaian digital, penyimpanan data, serta pemrosesan instruksi pada komputer dapat direpresentasikan menggunakan biner. Contohnya, bilangan desimal 10 direpresentasikan sebagai 1010<sub>2</sub>.</div>
+<h3>2.3 Oktal (Octal)</h3><p><b>Basis 8</b>, menggunakan delapan digit, yaitu 0 sampai 7. Digit 8 dan 9 tidak diperbolehkan dalam bilangan oktal.</p><div class="math">Contoh: 17<sub>8</sub>, 25<sub>8</sub>, 157<sub>8</sub></div>
+<div class="note"><b>Contoh penggunaan nyata:</b> sistem oktal dikenal dalam sistem operasi berbasis Unix/Linux untuk menyatakan hak akses file dan direktori. Misalnya, perintah <code>chmod 755 nama_file</code> menggunakan angka oktal 755 untuk menyatakan kombinasi izin pemilik, grup, dan pengguna lain. Contoh ini merupakan penggunaan oktal dalam administrasi sistem komputer.</div>
+<h3>2.4 Heksadesimal (Hexadecimal)</h3><p><b>Basis 16</b>, menggunakan enam belas simbol: angka 0–9 dan huruf A–F. Huruf A sampai F masing-masing mewakili nilai desimal 10 sampai 15.</p>
+<table><thead><tr><th>Simbol</th><th>Nilai desimal</th><th>Simbol</th><th>Nilai desimal</th></tr></thead><tbody>
+<tr><td>0–9</td><td>0–9</td><td>A</td><td>10</td></tr><tr><td>B</td><td>11</td><td>C</td><td>12</td></tr><tr><td>D</td><td>13</td><td>E</td><td>14</td></tr><tr><td>F</td><td>15</td><td></td><td></td></tr></tbody></table>
+<div class="math">Contoh: 1A<sub>16</sub>, 2F<sub>16</sub>, FF<sub>16</sub></div>
+<div class="note"><b>Contoh penggunaan nyata:</b> heksadesimal digunakan untuk menampilkan alamat MAC, alamat IPv6, nilai warna pada desain web, serta nilai alamat memori. Contoh alamat MAC adalah <code>00:1A:2B:3C:4D:5E</code>. Dalam HTML/CSS, warna biru dapat ditulis dengan kode <code>#0000FF</code>. Heksadesimal dipilih karena bentuknya lebih ringkas dibandingkan menuliskan deretan biner.</div>
+<h3>2.5 Tabel Perbandingan Sistem Bilangan</h3>
+<p>Tabel berikut merangkum nama sistem bilangan, radiks (basis), himpunan digit yang diperbolehkan, dan contoh penulisannya.</p>
+<table><thead><tr><th>Nama Sistem Bilangan</th><th>Radiks / Radix</th><th>Himpunan / Elemen Digit</th><th>Contoh</th></tr></thead><tbody>
+<tr><td>Desimal (Decimal)</td><td>10</td><td>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}</td><td>125<sub>10</sub></td></tr>
+<tr><td>Biner (Binary)</td><td>2</td><td>{0, 1}</td><td>1010<sub>2</sub></td></tr>
+<tr><td>Oktal (Octal)</td><td>8</td><td>{0, 1, 2, 3, 4, 5, 6, 7}</td><td>157<sub>8</sub></td></tr>
+<tr><td>Heksadesimal (Hexadecimal)</td><td>16</td><td>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F}</td><td>2F<sub>16</sub></td></tr>
+</tbody></table>
+<div class="warning"><b>Perhatikan validitas digit:</b> 102<sub>2</sub> bukan bilangan biner yang valid karena digit 2 tidak termasuk simbol biner. Demikian pula 89<sub>8</sub> bukan bilangan oktal yang valid.</div>
+</section>
+
+<section class="card" id="nilai"><span class="tag">MATERI 03</span><h2>3. Konsep Nilai Tempat (Position Value)</h2>
+<p>Nilai suatu digit ditentukan oleh digit itu sendiri, basis bilangan, dan posisinya. Posisi dihitung dari kanan ke kiri, dimulai dari pangkat nol.</p>
+<div class="math">N = d<sub>n</sub> × b<sup>n</sup> + ... + d<sub>2</sub> × b<sup>2</sup> + d<sub>1</sub> × b<sup>1</sup> + d<sub>0</sub> × b<sup>0</sup></div>
+<p>Keterangan: <b>d</b> adalah digit, <b>b</b> adalah basis, dan pangkat menunjukkan posisi digit dari kanan.</p>
+<h3>Contoh 1 — Desimal 325</h3>
+<table><tr><th>Digit</th><th>Posisi</th><th>Perhitungan</th><th>Nilai</th></tr><tr><td>5</td><td>0</td><td>5 × 10<sup>0</sup></td><td>5</td></tr><tr><td>2</td><td>1</td><td>2 × 10<sup>1</sup></td><td>20</td></tr><tr><td>3</td><td>2</td><td>3 × 10<sup>2</sup></td><td>300</td></tr></table>
+<div class="math">325<sub>10</sub> = 300 + 20 + 5</div>
+<h3>Contoh 2 — Biner 1011</h3>
+<table><tr><th>Digit</th><th>Posisi</th><th>Perhitungan</th><th>Nilai</th></tr><tr><td>1</td><td>3</td><td>1 × 2<sup>3</sup></td><td>8</td></tr><tr><td>0</td><td>2</td><td>0 × 2<sup>2</sup></td><td>0</td></tr><tr><td>1</td><td>1</td><td>1 × 2<sup>1</sup></td><td>2</td></tr><tr><td>1</td><td>0</td><td>1 × 2<sup>0</sup></td><td>1</td></tr></table>
+<div class="math">1011<sub>2</sub> = 8 + 0 + 2 + 1 = 11<sub>10</sub></div>
+<div class="note"><b>Inti konsep:</b> nilai tempat menjadi dasar konversi dari biner, oktal, dan heksadesimal menuju desimal.</div>
+</section>
+
+<section class="card" id="d-b"><span class="tag">MATERI 04 • KONVERSI</span><h2>4. Desimal ke Biner</h2>
+<p>Konversi desimal ke biner dilakukan dengan metode pembagian berulang oleh 2. Sisa setiap pembagian dicatat, kemudian dibaca dari bawah ke atas.</p>
+<ol class="steps"><li>Bagi bilangan desimal dengan 2.</li><li>Catat sisa pembagian (0 atau 1).</li><li>Bagi hasil pembagian dengan 2 secara berulang.</li><li>Hentikan ketika hasil pembagian menjadi 0.</li><li>Baca seluruh sisa dari bawah ke atas.</li></ol>
+<h3>Contoh: 25<sub>10</sub> ke biner</h3>
+<table><tr><th>Pembagian</th><th>Hasil</th><th>Sisa</th></tr><tr><td>25 ÷ 2</td><td>12</td><td>1</td></tr><tr><td>12 ÷ 2</td><td>6</td><td>0</td></tr><tr><td>6 ÷ 2</td><td>3</td><td>0</td></tr><tr><td>3 ÷ 2</td><td>1</td><td>1</td></tr><tr><td>1 ÷ 2</td><td>0</td><td>1</td></tr></table>
+<div class="math">Hasil: 25<sub>10</sub> = 11001<sub>2</sub></div>
+<div class="exercise" data-id="q1" data-answer="1101" data-label="13 desimal ke biner"><div class="exercise-head"><h4>Latihan 4.1</h4><span class="tag">1 poin</span></div><div class="question">Konversikan 13<sub>10</sub> menjadi biner.</div><div class="answer-row"><input class="answer-input" aria-label="Jawaban latihan 4.1" placeholder="Masukkan bilangan biner"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q2" data-answer="10010" data-label="18 desimal ke biner"><div class="question">Konversikan 18<sub>10</sub> menjadi biner.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan biner"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q3" data-answer="100011" data-label="35 desimal ke biner"><div class="question">Konversikan 35<sub>10</sub> menjadi biner.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan biner"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="b-d"><span class="tag">MATERI 05 • KONVERSI</span><h2>5. Biner ke Desimal</h2>
+<p>Konversi biner ke desimal dilakukan dengan mengalikan setiap digit biner dengan pangkat 2 sesuai posisinya, kemudian menjumlahkan seluruh hasilnya.</p>
+<ol class="steps"><li>Tentukan posisi digit dari kanan, dimulai dari 0.</li><li>Kalikan setiap digit dengan 2 pangkat posisi.</li><li>Jumlahkan seluruh hasil perkalian.</li></ol>
+<h3>Contoh: 11010<sub>2</sub> ke desimal</h3>
+<div class="math">11010<sub>2</sub> = (1×2<sup>4</sup>) + (1×2<sup>3</sup>) + (0×2<sup>2</sup>) + (1×2<sup>1</sup>) + (0×2<sup>0</sup>)</div>
+<div class="math">= 16 + 8 + 0 + 2 + 0 = 26<sub>10</sub></div>
+<div class="exercise" data-id="q4" data-answer="10" data-label="1010 biner ke desimal"><h4>Latihan 5.1</h4><div class="question">Konversikan 1010<sub>2</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q5" data-answer="13" data-label="1101 biner ke desimal"><div class="question">Konversikan 1101<sub>2</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q6" data-answer="23" data-label="10111 biner ke desimal"><div class="question">Konversikan 10111<sub>2</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="d-o"><span class="tag">MATERI 06 • KONVERSI</span><h2>6. Desimal ke Oktal</h2>
+<p>Konversi desimal ke oktal menggunakan pembagian berulang dengan 8. Sisa pembagian dibaca dari bawah ke atas.</p>
+<ol class="steps"><li>Bagi bilangan desimal dengan 8.</li><li>Catat sisa pembagian (0 sampai 7).</li><li>Ulangi pembagian terhadap hasil bagi.</li><li>Hentikan ketika hasil bagi 0, lalu baca sisa dari bawah ke atas.</li></ol>
+<h3>Contoh: 156<sub>10</sub> ke oktal</h3>
+<table><tr><th>Pembagian</th><th>Hasil</th><th>Sisa</th></tr><tr><td>156 ÷ 8</td><td>19</td><td>4</td></tr><tr><td>19 ÷ 8</td><td>2</td><td>3</td></tr><tr><td>2 ÷ 8</td><td>0</td><td>2</td></tr></table>
+<div class="math">156<sub>10</sub> = 234<sub>8</sub></div>
+<div class="exercise" data-id="q7" data-answer="24" data-label="20 desimal ke oktal"><h4>Latihan 6.1</h4><div class="question">Konversikan 20<sub>10</sub> menjadi oktal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan oktal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q8" data-answer="55" data-label="45 desimal ke oktal"><div class="question">Konversikan 45<sub>10</sub> menjadi oktal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan oktal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q9" data-answer="144" data-label="100 desimal ke oktal"><div class="question">Konversikan 100<sub>10</sub> menjadi oktal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan oktal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="o-d"><span class="tag">MATERI 07 • KONVERSI</span><h2>7. Oktal ke Desimal</h2>
+<p>Konversi oktal ke desimal menggunakan nilai tempat berbasis 8. Setiap digit dikalikan dengan 8 pangkat posisinya, kemudian seluruh hasil dijumlahkan.</p>
+<h3>Contoh: 234<sub>8</sub> ke desimal</h3>
+<div class="math">234<sub>8</sub> = (2×8<sup>2</sup>) + (3×8<sup>1</sup>) + (4×8<sup>0</sup>)</div>
+<div class="math">= 128 + 24 + 4 = 156<sub>10</sub></div>
+<div class="exercise" data-id="q10" data-answer="15" data-label="17 oktal ke desimal"><h4>Latihan 7.1</h4><div class="question">Konversikan 17<sub>8</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q11" data-answer="21" data-label="25 oktal ke desimal"><div class="question">Konversikan 25<sub>8</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q12" data-answer="83" data-label="123 oktal ke desimal"><div class="question">Konversikan 123<sub>8</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="d-h"><span class="tag">MATERI 08 • KONVERSI</span><h2>8. Desimal ke Heksadesimal</h2>
+<p>Konversi desimal ke heksadesimal menggunakan pembagian berulang dengan 16. Sisa 10 sampai 15 ditulis sebagai A sampai F.</p>
+<h3>Contoh: 255<sub>10</sub> ke heksadesimal</h3>
+<table><tr><th>Pembagian</th><th>Hasil</th><th>Sisa</th><th>Simbol</th></tr><tr><td>255 ÷ 16</td><td>15</td><td>15</td><td>F</td></tr><tr><td>15 ÷ 16</td><td>0</td><td>15</td><td>F</td></tr></table>
+<div class="math">255<sub>10</sub> = FF<sub>16</sub></div>
+<div class="note">Ingat: 10 = A, 11 = B, 12 = C, 13 = D, 14 = E, dan 15 = F.</div>
+<div class="exercise" data-id="q13" data-answer="1A" data-label="26 desimal ke heksadesimal"><h4>Latihan 8.1</h4><div class="question">Konversikan 26<sub>10</sub> menjadi heksadesimal.</div><div class="answer-row"><input class="answer-input" placeholder="Contoh format: 1A"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q14" data-answer="2A" data-label="42 desimal ke heksadesimal"><div class="question">Konversikan 42<sub>10</sub> menjadi heksadesimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan heksadesimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q15" data-answer="64" data-label="100 desimal ke heksadesimal"><div class="question">Konversikan 100<sub>10</sub> menjadi heksadesimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan heksadesimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="h-d"><span class="tag">MATERI 09 • KONVERSI</span><h2>9. Heksadesimal ke Desimal</h2>
+<p>Konversi heksadesimal ke desimal menggunakan nilai tempat berbasis 16. Sebelum menghitung, ubah huruf A–F menjadi nilai desimalnya.</p>
+<h3>Contoh: 2A<sub>16</sub> ke desimal</h3>
+<p>Simbol A bernilai 10 dalam desimal.</p>
+<div class="math">2A<sub>16</sub> = (2×16<sup>1</sup>) + (10×16<sup>0</sup>)</div>
+<div class="math">= 32 + 10 = 42<sub>10</sub></div>
+<div class="exercise" data-id="q16" data-answer="26" data-label="1A heksadesimal ke desimal"><h4>Latihan 9.1</h4><div class="question">Konversikan 1A<sub>16</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q17" data-answer="47" data-label="2F heksadesimal ke desimal"><div class="question">Konversikan 2F<sub>16</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q18" data-answer="180" data-label="B4 heksadesimal ke desimal"><div class="question">Konversikan B4<sub>16</sub> menjadi desimal.</div><div class="answer-row"><input class="answer-input" placeholder="Masukkan bilangan desimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="langsung"><span class="tag">MATERI 10 • KONVERSI LANGSUNG</span><h2>10. Konversi Langsung Biner, Oktal, dan Heksadesimal</h2>
+<p>Konversi langsung dapat dilakukan tanpa mengubah bilangan ke desimal terlebih dahulu. Kuncinya adalah pengelompokan digit biner.</p>
+<h3>10.1 Biner ke Oktal</h3><p>Kelompokkan digit biner menjadi tiga bit dari kanan ke kiri. Jika kelompok paling kiri kurang dari tiga bit, tambahkan nol di sebelah kiri.</p>
+<div class="math">101101<sub>2</sub> → 101 | 101 → 5 | 5 → 55<sub>8</sub></div>
+<h3>10.2 Oktal ke Biner</h3><p>Ubah setiap digit oktal menjadi tiga bit biner.</p>
+<table><tr><th>Oktal</th><th>Biner</th><th>Oktal</th><th>Biner</th></tr><tr><td>0</td><td>000</td><td>4</td><td>100</td></tr><tr><td>1</td><td>001</td><td>5</td><td>101</td></tr><tr><td>2</td><td>010</td><td>6</td><td>110</td></tr><tr><td>3</td><td>011</td><td>7</td><td>111</td></tr></table>
+<div class="math">57<sub>8</sub> → 101 | 111 → 101111<sub>2</sub></div>
+<h3>10.3 Biner ke Heksadesimal</h3><p>Kelompokkan digit biner menjadi empat bit dari kanan ke kiri. Tambahkan nol di sebelah kiri jika kelompok paling kiri belum berjumlah empat bit.</p>
+<div class="math">10101111<sub>2</sub> → 1010 | 1111 → A | F → AF<sub>16</sub></div>
+<h3>10.4 Heksadesimal ke Biner</h3><p>Ubah setiap digit heksadesimal menjadi empat bit biner.</p>
+<table><tr><th>Hex</th><th>Biner</th><th>Hex</th><th>Biner</th></tr><tr><td>0</td><td>0000</td><td>8</td><td>1000</td></tr><tr><td>1</td><td>0001</td><td>9</td><td>1001</td></tr><tr><td>2</td><td>0010</td><td>A</td><td>1010</td></tr><tr><td>3</td><td>0011</td><td>B</td><td>1011</td></tr><tr><td>4</td><td>0100</td><td>C</td><td>1100</td></tr><tr><td>5</td><td>0101</td><td>D</td><td>1101</td></tr><tr><td>6</td><td>0110</td><td>E</td><td>1110</td></tr><tr><td>7</td><td>0111</td><td>F</td><td>1111</td></tr></table>
+<div class="math">2A<sub>16</sub> → 0010 | 1010 → 00101010<sub>2</sub></div>
+<div class="exercise" data-id="q19" data-answer="6" data-label="110 biner ke oktal"><h4>Latihan 10.1 — Biner ke Oktal</h4><div class="question">Konversikan 110<sub>2</sub> menjadi oktal.</div><div class="answer-row"><input class="answer-input" placeholder="Jawaban"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q20" data-answer="101111" data-label="57 oktal ke biner"><h4>Latihan 10.2 — Oktal ke Biner</h4><div class="question">Konversikan 57<sub>8</sub> menjadi biner.</div><div class="answer-row"><input class="answer-input" placeholder="Jawaban biner"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q21" data-answer="AF" data-label="10101111 biner ke heksadesimal"><h4>Latihan 10.3 — Biner ke Heksadesimal</h4><div class="question">Konversikan 10101111<sub>2</sub> menjadi heksadesimal.</div><div class="answer-row"><input class="answer-input" placeholder="Jawaban heksadesimal"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+<div class="exercise" data-id="q22" data-answer="00101010" data-label="2A heksadesimal ke biner"><h4>Latihan 10.4 — Heksadesimal ke Biner</h4><div class="question">Konversikan 2A<sub>16</sub> menjadi biner.</div><div class="answer-row"><input class="answer-input" placeholder="Jawaban biner"><button class="btn check">Periksa</button></div><div class="feedback"></div></div>
+</section>
+
+<section class="card" id="game"><span class="tag">LATIHAN BERBASIS PERMAINAN</span><h2>11. Mini Game — Tantangan Konversi Biner</h2>
+<p>Latihan ini mengadaptasi ide permainan konversi biner: tentukan nilai desimal dari susunan bit atau bentuk biner dari angka desimal. Jawab sebanyak mungkin soal dalam batas waktu.</p>
+<div class="gamebox">
+<h3>Binary Challenge</h3>
+<div class="game-meta"><span>Waktu: <b id="timer">60</b> detik</span><span>Skor: <b id="gameScore">0</b></span><span>Soal: <b id="gameCount">0</b></span></div>
+<div class="game-display" id="gameQuestion">Siap?</div>
+<div id="gamePrompt" style="text-align:center;color:#d6e8f6">Tekan Mulai untuk memulai tantangan.</div>
+<input id="gameAnswer" placeholder="Ketik jawaban" disabled autocomplete="off">
+<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap"><button class="btn" id="startGame">Mulai Game</button><button class="btn secondary" id="submitGame" disabled>Jawab</button></div>
+<div class="game-result" id="gameResult" aria-live="polite"></div>
+</div>
+<p style="font-size:12px;color:#65748a">Skor mini game dicatat terpisah dan turut dimasukkan dalam laporan TXT. Mini game bukan bagian dari 22 soal latihan utama.</p>
+</section>
+
+<section class="card" id="rekap"><span class="tag">HASIL PEMBELAJARAN</span><h2>12. Progres, Nilai, dan Unduh Jawaban</h2>
+<p>Jawaban dinilai otomatis setelah tombol <b>Periksa</b> ditekan. Progres menunjukkan jumlah soal latihan utama yang sudah diperiksa, baik benar maupun salah. Nilai akhir dihitung dari jumlah jawaban benar dibandingkan seluruh soal latihan utama.</p>
+<div class="statgrid">
+<div class="stat"><b id="checkedStat">0/22</b><span>Soal diperiksa</span></div>
+<div class="stat"><b id="correctStat">0</b><span>Jawaban benar</span></div>
+<div class="stat"><b id="scoreStat">0</b><span>Nilai sementara</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="mainProgress"></div></div>
+<p id="progressText" style="font-size:13px;color:#65748a">Progres latihan: 0%</p>
+<div class="note"><b>Isi laporan TXT:</b> identitas mahasiswa, tanggal dan waktu unduh, daftar soal, jawaban mahasiswa, kunci jawaban, status setiap soal, progres, nilai akhir, serta hasil mini game.</div>
+<button class="btn dark" id="downloadBtn">Unduh Seluruh Jawaban (.txt)</button>
+<p id="downloadMessage" style="font-size:13px;color:#65748a"></p>
+<div class="warning"><b>Ketentuan:</b> Unduh laporan setelah menyelesaikan latihan. Soal yang belum diperiksa akan ditandai sebagai “Belum dikerjakan/belum diperiksa”. Nama mahasiswa digunakan sebagai nama file TXT.</div>
+</section>
+</main></div>
+<footer>Modul Pembelajaran • Arsitektur dan Jaringan Komputer • Sistem Bilangan</footer>
+<script>
+const exercises=[...document.querySelectorAll('.exercise')];
+const results={};
+const total=exercises.length;
+function normalize(v){return String(v||'').trim().replace(/\s+/g,'').replace(/_/g,'').toUpperCase()}
+function updateProgress(){
+ const checked=Object.keys(results).length, correct=Object.values(results).filter(x=>x.correct).length;
+ const pct=Math.round(checked/total*100), score=Math.round(correct/total*100);
+ document.getElementById('checkedStat').textContent=checked+'/'+total;
+ document.getElementById('correctStat').textContent=correct;
+ document.getElementById('scoreStat').textContent=score;
+ document.getElementById('progressText').textContent='Progres latihan: '+pct+'% ('+checked+' dari '+total+' soal diperiksa)';
+ ['mainProgress','sideProgress'].forEach(id=>document.getElementById(id).style.width=pct+'%');
+ document.getElementById('sideCount').textContent=checked+' dari '+total+' soal diperiksa';
+}
+exercises.forEach(el=>{
+ const btn=el.querySelector('.check'), input=el.querySelector('input'), feedback=el.querySelector('.feedback');
+ btn.addEventListener('click',()=>{
+  const val=input.value.trim(); if(!val){feedback.textContent='Masukkan jawaban terlebih dahulu.';feedback.className='feedback incorrect';return}
+  const correct=normalize(val)===normalize(el.dataset.answer);
+  results[el.dataset.id]={label:el.dataset.label,answer:val,key:el.dataset.answer,correct};
+  feedback.textContent=correct?'Benar. Jawaban Anda tepat.':'Belum tepat. Periksa kembali langkah konversinya.';
+  feedback.className='feedback '+(correct?'correct':'incorrect');
+  updateProgress();
+ });
+ input.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click()});
+});
+let game={active:false,score:0,count:0,time:60,question:null,timer:null,history:[]};
+function newGameQuestion(){
+ const direction=Math.random()<.5?'Biner ke desimal':'Desimal ke biner';
+ const n=Math.floor(Math.random()*128)+1;
+ game.question={direction,n,answer:direction==='Biner ke desimal'?String(n):n.toString(2)};
+ document.getElementById('gameQuestion').textContent=direction==='Biner ke desimal'?n.toString(2):String(n);
+ document.getElementById('gamePrompt').textContent=direction==='Biner ke desimal'?'Ubah bilangan biner di atas menjadi desimal.':'Ubah bilangan desimal di atas menjadi biner.';
+ const inp=document.getElementById('gameAnswer');inp.value='';inp.focus();
+}
+function finishGame(){
+ game.active=false;clearInterval(game.timer);
+ document.getElementById('gameAnswer').disabled=true;document.getElementById('submitGame').disabled=true;
+ document.getElementById('startGame').disabled=false;document.getElementById('startGame').textContent='Main Lagi';
+ document.getElementById('gameQuestion').textContent='Selesai!';
+ document.getElementById('gamePrompt').textContent='Permainan telah berakhir.';
+ document.getElementById('gameResult').textContent='Skor akhir: '+game.score+' dari '+game.count+' soal dijawab.';
+}
+document.getElementById('startGame').addEventListener('click',()=>{
+ clearInterval(game.timer);game={active:true,score:0,count:0,time:60,question:null,timer:null,history:[]};
+ document.getElementById('gameAnswer').disabled=false;document.getElementById('submitGame').disabled=false;document.getElementById('startGame').disabled=true;
+ document.getElementById('gameScore').textContent='0';document.getElementById('gameCount').textContent='0';document.getElementById('timer').textContent='60';document.getElementById('gameResult').textContent='';
+ newGameQuestion();
+ game.timer=setInterval(()=>{game.time--;document.getElementById('timer').textContent=game.time;if(game.time<=0)finishGame()},1000);
+});
+function submitGame(){
+ if(!game.active)return;
+ const val=document.getElementById('gameAnswer').value.trim();if(!val)return;
+ const ok=normalize(val)===normalize(game.question.answer);
+ game.count++;if(ok)game.score+=10;
+ game.history.push({direction:game.question.direction,question:game.question.direction==='Biner ke desimal'?game.question.n.toString(2):String(game.question.n),answer:val,key:game.question.answer,correct:ok});
+ document.getElementById('gameScore').textContent=game.score;document.getElementById('gameCount').textContent=game.count;
+ document.getElementById('gameResult').textContent=ok?'Tepat! +10 poin.':'Belum tepat. Jawaban: '+game.question.answer;
+ newGameQuestion();
+}
+document.getElementById('submitGame').addEventListener('click',submitGame);
+document.getElementById('gameAnswer').addEventListener('keydown',e=>{if(e.key==='Enter')submitGame()});
+document.getElementById('downloadBtn').addEventListener('click',()=>{
+ const name=document.getElementById('studentName').value.trim(), npm=document.getElementById('studentNpm').value.trim();
+ if(!name){document.getElementById('downloadMessage').textContent='Silakan isi nama lengkap terlebih dahulu.';document.getElementById('studentName').focus();return}
+ const checked=Object.keys(results).length, correct=Object.values(results).filter(x=>x.correct).length, score=Math.round(correct/total*100), progress=Math.round(checked/total*100);
+ const now=new Date(), date=now.toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'});
+ let lines=['HASIL PEMBELAJARAN — SISTEM BILANGAN','Mata Kuliah: Arsitektur dan Jaringan Komputer','==================================================','IDENTITAS MAHASISWA','Nama: '+name,'NPM: '+(npm||'-'),'Tanggal dan waktu unduh: '+date,'','PROGRES DAN NILAI','Soal latihan utama diperiksa: '+checked+' dari '+total,'Progres: '+progress+'%','Jawaban benar: '+correct,'Jawaban salah: '+(checked-correct),'Soal belum diperiksa: '+(total-checked),'Nilai akhir sementara: '+score+'/100','Rumus nilai: (jawaban benar / '+total+') x 100','','RINCIAN JAWABAN','=================================================='];
+ exercises.forEach((el,i)=>{
+  const r=results[el.dataset.id];
+  lines.push((i+1)+'. '+el.dataset.label);
+  lines.push('   Jawaban mahasiswa: '+(r?r.answer:'Belum dikerjakan/belum diperiksa'));
+  lines.push('   Kunci jawaban: '+el.dataset.answer);
+  lines.push('   Status: '+(r?(r.correct?'BENAR':'SALAH'):'BELUM DIPERIKSA'));
+  lines.push('');
+ });
+ lines.push('HASIL MINI GAME BINARY CHALLENGE','==================================================');
+ lines.push('Skor mini game: '+game.score);
+ lines.push('Jumlah soal dijawab: '+game.count);
+ lines.push('Rincian:');
+ if(game.history.length){game.history.forEach((x,i)=>lines.push((i+1)+'. '+x.direction+' | Soal: '+x.question+' | Jawaban: '+x.answer+' | Kunci: '+x.key+' | '+(x.correct?'BENAR':'SALAH')))}
+ else lines.push('Mini game belum dimainkan.');
+ lines.push('','Catatan: Nilai akhir di atas merupakan nilai latihan utama dari '+total+' soal. Mini game dicatat terpisah.','Dokumen ini dibuat otomatis oleh Modul Interaktif Sistem Bilangan.');
+ const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob), a=document.createElement('a');
+ const safe=name.normalize('NFKD').replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_')||'Mahasiswa';
+ a.href=url;a.download='Hasil_Sistem_Bilangan_'+safe+'.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ document.getElementById('downloadMessage').textContent='Laporan TXT berhasil disiapkan dengan nama file: Hasil_Sistem_Bilangan_'+safe+'.txt';
+});
+updateProgress();
+</script>
+</body></html>
