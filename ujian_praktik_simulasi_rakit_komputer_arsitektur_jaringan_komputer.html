@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ujian Praktik: Simulasi Rakit Komputer - Arsitektur & Jaringan Komputer</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.469.0"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.02);
+    }
+    .futuristic-grid {
+      background-image: radial-gradient(rgba(14, 165, 233, 0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.3); }
+      50% { box-shadow: 0 0 20px 4px rgba(14, 165, 233, 0.25); }
+    }
+    .glow-active {
+      animation: pulseGlow 2.5s infinite;
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
+    }
+    .scan-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #0ea5e9, #6366f1, transparent);
+      animation: scanline 4s linear infinite;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    .float-anim {
+      animation: floatSlow 3.5s ease-in-out infinite;
+    }
+    .slot-filled {
+      border-color: #0ea5e9;
+      background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(224, 242, 254, 0.5));
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen futuristic-grid flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Futuristic Accent Bar -->
+  <div class="w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-cyan-400 sticky top-0 z-50"></div>
+
+  <!-- Header -->
+  <header class="sticky top-1 z-40 mx-auto w-full max-w-7xl px-4 sm:px-6 pt-3">
+    <div class="glass-card rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <i data-lucide="cpu" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-semibold border border-sky-200">EXAM SIMULATOR v2.6</span>
+            <span class="text-xs text-slate-400 font-mono hidden sm:inline">SYS-ARCH-NET</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900">Arsitektur & Jaringan Komputer — Lab Rakit PC</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 sm:gap-5">
+        <div class="text-right hidden md:block">
+          <p class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Dosen Pengampu</p>
+          <p class="text-xs sm:text-sm font-semibold text-slate-800">Rendy Almaheri Adhi Pratama, S.Kom., M.Kom.</p>
+        </div>
+
+        <!-- Step Pill Indicator -->
+        <div class="flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200/80 text-xs font-medium">
+          <button id="navStep1" onclick="jumpToStep(1)" class="px-2.5 py-1 rounded-lg transition-all bg-white text-sky-600 shadow-sm font-semibold flex items-center gap-1">
+            <span class="font-mono text-[10px]">01</span> Identitas
+          </button>
+          <button id="navStep2" onclick="jumpToStep(2)" class="px-2.5 py-1 rounded-lg transition-all text-slate-500 flex items-center gap-1" disabled>
+            <span class="font-mono text-[10px]">02</span> Klien
+          </button>
+          <button id="navStep3" onclick="jumpToStep(3)" class="px-2.5 py-1 rounded-lg transition-all text-slate-500 flex items-center gap-1" disabled>
+            <span class="font-mono text-[10px]">03</span> Rakit
+          </button>
+          <button id="navStep4" onclick="jumpToStep(4)" class="px-2.5 py-1 rounded-lg transition-all text-slate-500 flex items-center gap-1" disabled>
+            <span class="font-mono text-[10px]">04</span> Hasil
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 py-6">
+
+    <!-- Active Student Banner (shown in Step 2, 3, 4) -->
+    <div id="activeStudentBar" class="hidden mb-6 glass-card rounded-2xl px-5 py-3 border-l-4 border-l-sky-500 flex flex-wrap items-center justify-between gap-3 transition-all">
+      <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-check" class="w-4 h-4 text-sky-600"></i>
+          <span class="text-slate-500">Mahasiswa:</span>
+          <span id="barNama" class="font-bold text-slate-900">-</span>
+        </div>
+        <div class="h-3 w-[1px] bg-slate-300 hidden sm:block"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500">NPM:</span>
+          <span id="barNpm" class="font-mono font-semibold text-slate-800">-</span>
+        </div>
+        <div class="h-3 w-[1px] bg-slate-300 hidden sm:block"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500">Jurusan:</span>
+          <span id="barJurusan" class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-semibold text-xs border border-indigo-200">-</span>
+        </div>
+      </div>
+      <div id="barJobBadge" class="hidden items-center gap-2 text-xs">
+        <span class="text-slate-400">Target Skenario:</span>
+        <span id="barJobTitle" class="font-semibold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">-</span>
+      </div>
+    </div>
+
+    <!-- ================= STEP 1: IDENTITAS MAHASISWA ================= -->
+    <section id="step1Section" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Instructions & Course Info -->
+        <div class="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+          <div class="absolute -right-12 -top-12 w-40 h-40 bg-sky-400/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-semibold mb-4">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            PORTAL UJIAN PRAKTIK
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Simulasi Merakit PC Sesuai Kebutuhan User
+          </h2>
+          <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+            Ujian praktik ini menguji pemahaman Anda terhadap pemilihan spesifikasi perangkat keras komputer dari tingkat <strong>Low-End</strong> hingga <strong>High-End Workstation</strong> berdasarkan beban kerja sehari-hari.
+          </p>
+
+          <div class="mt-6 space-y-3.5">
+            <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/70">
+              <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 font-mono font-bold text-xs">01</div>
+              <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Undi Profil Pekerjaan (Maks 3x)</h4>
+                <p class="text-xs text-slate-600 mt-0.5">Anda diberikan 3 kali kesempatan mengacak profil pekerjaan klien beserta anggaran dan kebutuhan aplikasinya.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/70">
+              <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-mono font-bold text-xs">02</div>
+              <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Rakit Tanpa Hint (Blind Test)</h4>
+                <p class="text-xs text-slate-600 mt-0.5">Pilih komponen yang kompatibel dan tepat sasaran. Tidak ada petunjuk kecocokan selama proses perakitan berlangsung.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-rose-50/80 border border-rose-200/80">
+              <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 font-mono font-bold text-xs">-30</div>
+              <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-rose-800">Logika Kegagalan Booting (PC Mati)</h4>
+                <p class="text-xs text-rose-700 mt-0.5">Jika komponen utama terlupa, salah soket, tanpa output grafis, atau daya PSU kurang sehingga komputer tidak dapat hidup, otomatis dikenakan <strong>penalti -30 poin</strong>.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-mono font-bold text-xs">MD</div>
+              <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800">Unduh Lembar Jawaban Otomatis</h4>
+                <p class="text-xs text-emerald-700 mt-0.5">Setelah pengujian selesai, unduh dokumen laporan hasil ujian (<code>.md</code>) dengan format nama file otomatis.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-5 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
+            <span>Mata Kuliah: <strong class="text-slate-700">Arsitektur & Jaringan Komputer</strong></span>
+            <span class="font-mono text-sky-600 font-semibold">47 Mahasiswa Terdaftar</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Registration Form -->
+        <div class="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900">Data Peserta Ujian</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Pilih nama Anda dari daftar resmi kelas, masukkan NPM, dan pilih program studi.</p>
+            </div>
+            <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600">
+              <i data-lucide="id-card" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Student Search + Dropdown -->
+            <div>
+              <label for="selectMahasiswa" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                Nama Lengkap Mahasiswa <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative mb-2">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input
+                  id="searchStudentInput"
+                  type="text"
+                  placeholder="Ketik untuk memfilter nama mahasiswa..."
+                  oninput="filterStudentList()"
+                  class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                >
+              </div>
+              <select
+                id="selectMahasiswa"
+                onchange="validateStep1Form()"
+                class="w-full px-4 py-3 text-sm font-medium rounded-xl bg-white border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all cursor-pointer"
+              >
+                <option value="">-- Pilih Nama Mahasiswa (47 Peserta) --</option>
+              </select>
+              <p id="studentFilterCount" class="text-[11px] text-slate-400 mt-1.5 font-mono">Menampilkan 47 nama mahasiswa terdaftar.</p>
+            </div>
+
+            <!-- NPM Input -->
+            <div>
+              <label for="inputNpm" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                Nomor Pokok Mahasiswa (NPM) <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <i data-lucide="hash" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input
+                  id="inputNpm"
+                  type="text"
+                  placeholder="Contoh: 24110001"
+                  oninput="validateStep1Form()"
+                  class="w-full pl-10 pr-4 py-3 text-sm font-mono rounded-xl bg-white border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                >
+              </div>
+            </div>
+
+            <!-- Jurusan Selection Cards -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                Program Studi / Jurusan <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onclick="selectJurusan('Bisnis Digital')"
+                  id="jurusanBtn_Bisnis_Digital"
+                  class="jurusan-btn p-4 rounded-2xl border border-slate-200 bg-white hover:border-sky-300 text-left transition-all flex flex-col justify-between group"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-sky-100 text-slate-600 group-hover:text-sky-600 flex items-center justify-center mb-3 transition-colors">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Bisnis Digital</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">S1 Bisnis Digital</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onclick="selectJurusan('Informatika')"
+                  id="jurusanBtn_Informatika"
+                  class="jurusan-btn p-4 rounded-2xl border border-slate-200 bg-white hover:border-sky-300 text-left transition-all flex flex-col justify-between group"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-sky-100 text-slate-600 group-hover:text-sky-600 flex items-center justify-center mb-3 transition-colors">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Informatika</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">S1 Informatika</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onclick="selectJurusan('Sistem Informasi')"
+                  id="jurusanBtn_Sistem_Informasi"
+                  class="jurusan-btn p-4 rounded-2xl border border-slate-200 bg-white hover:border-sky-300 text-left transition-all flex flex-col justify-between group"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-sky-100 text-slate-600 group-hover:text-sky-600 flex items-center justify-center mb-3 transition-colors">
+                    <i data-lucide="database" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Sistem Informasi</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">S1 Sistem Informasi</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Message & Submit -->
+            <div id="step1ValidationMsg" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+              <span>Lengkapi Nama Mahasiswa, NPM, dan pilih Jurusan untuk memulai sesi ujian.</span>
+            </div>
+
+            <button
+              id="btnStartStep2"
+              type="button"
+              onclick="proceedToStep2()"
+              disabled
+              class="w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white bg-slate-300 cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>Lanjut ke Pengundian Skenario Pekerjaan</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= STEP 2: RANDOMACA 3X TIPE PEKERJAAN ================= -->
+    <section id="step2Section" class="hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-2">
+              <i data-lucide="dices" class="w-3.5 h-3.5"></i>
+              GENERATOR KASUS UJIAN
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Undi Skenario Pekerjaan Pengguna (Low — High End)</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Anda memiliki maksimal <strong>3 kali kesempatan acak (Random Spin)</strong> untuk mendapatkan studi kasus pekerjaan. Analisis kebutuhan dengan teliti sebelum mengunci skenario.
+            </p>
+          </div>
+
+          <!-- Spin Counter & Roll Button -->
+          <div class="flex flex-wrap items-center gap-3 shrink-0">
+            <div class="px-4 py-2.5 rounded-2xl bg-slate-100 border border-slate-200 text-center">
+              <div class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Sisa Kesempatan Acak</div>
+              <div class="text-lg font-mono font-extrabold text-sky-600"><span id="spinLeftLabel">3</span> / 3</div>
+            </div>
+
+            <button
+              id="btnRollJob"
+              type="button"
+              onclick="rollRandomJob()"
+              class="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-sky-500/20 transition-all flex items-center gap-2 glow-active"
+            >
+              <i data-lucide="shuffle" class="w-4 h-4"></i>
+              <span id="btnRollJobText">Acak Tipe Pekerjaan (Spin #1)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State before first spin -->
+        <div id="jobEmptyState" class="py-14 text-center max-w-md mx-auto">
+          <div class="w-16 h-16 rounded-3xl bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center mx-auto mb-4 float-anim">
+            <i data-lucide="sparkles" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-800">Belum Ada Skenario Pekerjaan Terpilih</h3>
+          <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+            Klik tombol <strong>"Acak Tipe Pekerjaan"</strong> di kanan atas untuk mengundi studi kasus dari rentang <em>Low-End</em> hingga <em>High-End Workstation</em>.
+          </p>
+        </div>
+
+        <!-- Populated Job Card after spin -->
+        <div id="jobDetailContainer" class="hidden pt-6 space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Main Job Brief -->
+            <div class="lg:col-span-8 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-6 sm:p-7 relative overflow-hidden shadow-xl">
+              <div class="scan-bar absolute inset-x-0 top-0 pointer-events-none"></div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <span id="jobCodeBadge" class="font-mono text-xs px-2.5 py-1 rounded-md bg-sky-500/20 border border-sky-400/30 text-sky-300 font-semibold">JOB-01</span>
+                <span class="font-mono text-xs px-3 py-1 rounded-full bg-white/10 text-slate-200 border border-white/15">
+                  Profil Kebutuhan Klien
+                </span>
+              </div>
+
+              <h3 id="jobTitleText" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">-</h3>
+              <p id="jobClientPersona" class="text-xs sm:text-sm text-sky-300 font-medium mt-1">-</p>
+
+              <p id="jobDescText" class="mt-4 text-xs sm:text-sm text-slate-200 leading-relaxed bg-white/5 p-4 rounded-xl border border-white/10">
+                -
+              </p>
+
+              <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <div class="text-[11px] font-mono uppercase tracking-wider text-sky-300 mb-2 flex items-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i> Beban Kerja & Aplikasi Harian
+                  </div>
+                  <ul id="jobAppsList" class="space-y-1.5 text-xs text-slate-200"></ul>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <div class="text-[11px] font-mono uppercase tracking-wider text-emerald-300 mb-2 flex items-center gap-1.5">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Detail Kebutuhan Operasional
+                  </div>
+                  <ul id="jobReqsList" class="space-y-1.5 text-xs text-slate-200"></ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Budget & Roll History Panel -->
+            <div class="lg:col-span-4 flex flex-col justify-between gap-4">
+              <div class="rounded-2xl bg-sky-50/90 border border-sky-200 p-5">
+                <div class="text-xs font-mono uppercase tracking-wider text-sky-700 font-semibold">Target Anggaran Klien</div>
+                <div id="jobBudgetText" class="text-xl sm:text-2xl font-mono font-extrabold text-slate-900 mt-1">Rp 0</div>
+                <p id="jobBudgetNote" class="text-xs text-slate-600 mt-2 leading-relaxed">
+                  Analisis deskripsi pekerjaan dan beban aplikasi di samping untuk menentukan prioritas komponen tanpa melampaui batas maksimal anggaran klien.
+                </p>
+              </div>
+
+              <!-- History of up to 3 rolled jobs -->
+              <div class="rounded-2xl bg-white border border-slate-200 p-5 flex-1">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Riwayat Undian Anda</span>
+                  <span class="text-[11px] text-slate-400">Klik untuk pilih ulang</span>
+                </div>
+                <div id="rolledJobsHistory" class="space-y-2"></div>
+              </div>
+
+              <button
+                type="button"
+                onclick="lockJobAndStartBuild()"
+                class="w-full py-4 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+              >
+                <i data-lucide="wrench" class="w-4 h-4"></i>
+                <span>Kunci Skenario & Mulai Rakit PC</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STEP 3: WORKBENCH PERAKITAN PC (NO HINTS) ================= -->
+    <section id="step3Section" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left Column (4 cols): Client Brief Summary + Motherboard Slot Visualizer -->
+        <div class="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
+          <!-- Compact Job Brief Card -->
+          <div class="glass-card rounded-2xl p-5 border-t-4 border-t-indigo-600">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-indigo-600 font-bold">Misi Perakitan Aktif</span>
+              <span id="wbJobCode" class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">JOB</span>
+            </div>
+            <h3 id="wbJobTitle" class="text-base font-extrabold text-slate-900">-</h3>
+            <p id="wbJobDesc" class="text-xs text-slate-600 mt-1.5 leading-relaxed">-</p>
+
+            <div class="mt-3 pt-3 border-t border-slate-200/80">
+              <div class="text-[11px] font-bold text-slate-700 mb-1.5">Kebutuhan Utama Klien:</div>
+              <ul id="wbJobReqs" class="space-y-1 text-xs text-slate-600"></ul>
+            </div>
+
+            <div class="mt-4 p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono uppercase text-slate-400">Batas Anggaran Klien</div>
+                <div id="wbMaxBudget" class="text-sm font-mono font-bold text-sky-400">Rp 0</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] font-mono uppercase text-slate-400">Total Rakitan Saat Ini</div>
+                <div id="wbCurrentCost" class="text-sm font-mono font-bold text-white">Rp 0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Blueprint Schematic (No hints, only visual installation status) -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="circuit-board" class="w-4 h-4 text-sky-600"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Status Slot Komponen</h4>
+              </div>
+              <span id="wbSlotCount" class="text-xs font-mono font-bold text-sky-600">0 / 8 Terpasang</span>
+            </div>
+
+            <!-- 8 Slots Schematic Grid -->
+            <div id="schematicGrid" class="grid grid-cols-2 gap-2.5 text-xs"></div>
+
+            <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 leading-relaxed flex items-start gap-2">
+              <i data-lucide="eye-off" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5"></i>
+              <span><strong>Mode Ujian Blind-Test:</strong> Sistem tidak memberikan peringatan kompatibilitas soket, kapasitas PSU, atau keberadaan iGPU sebelum Anda menekan tombol Uji Nyala & Evaluasi.</span>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onclick="openConfirmSubmitModal()"
+                class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-sm shadow-md shadow-sky-500/20 transition-all flex items-center justify-center gap-2"
+              >
+                <i data-lucide="power" class="w-4 h-4"></i>
+                <span>Uji Nyala (POST) & Koreksi Nilai</span>
+              </button>
+              <button
+                type="button"
+                onclick="resetAllSlots()"
+                class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
+              >
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                <span>Kosongkan Semua Slot</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column (8 cols): Category Tabs & Component Picker -->
+        <div class="lg:col-span-8 glass-card rounded-3xl p-5 sm:p-7">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-900">Katalog Komponen Perangkat Keras</h3>
+              <p class="text-xs text-slate-500">Pilih komponen untuk setiap slot. Anda juga dapat membiarkan slot kosong jika merasa tidak diperlukan.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-mono">Kategori Aktif:</span>
+              <span id="activeCategoryBadge" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200">CPU</span>
+            </div>
+          </div>
+
+          <!-- Category Selector Tabs -->
+          <div id="categoryTabsContainer" class="flex items-center gap-2 overflow-x-auto custom-scrollbar py-3"></div>
+
+          <!-- Selected Item Banner for Current Category -->
+          <div id="currentCatSelectionBar" class="mt-2 mb-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 text-xs">
+              <span class="font-bold text-slate-700" id="catBarTitle">Prosesor (CPU):</span>
+              <span id="catBarSelectedName" class="text-slate-500 italic">Belum ada komponen dipasang (Slot Kosong)</span>
+            </div>
+            <button
+              id="btnClearCatSlot"
+              type="button"
+              onclick="clearCurrentCategorySlot()"
+              class="hidden px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold border border-rose-200 transition-all"
+            >
+              Lepas Komponen
+            </button>
+          </div>
+
+          <!-- Parts Grid -->
+          <div id="partsCatalogGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[560px] overflow-y-auto custom-scrollbar pr-1"></div>
+
+          <!-- Quick Next/Prev Category Navigation -->
+          <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+            <button
+              type="button"
+              onclick="stepCategory(-1)"
+              class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all"
+            >
+              <i data-lucide="chevron-left" class="w-4 h-4"></i> Kategori Sebelumnya
+            </button>
+            <button
+              type="button"
+              onclick="stepCategory(1)"
+              class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold flex items-center gap-1.5 transition-all"
+            >
+              Kategori Berikutnya <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= STEP 4: HASIL PENILAIAN, LOGIKA BOOT & UNDUH MD ================= -->
+    <section id="step4Section" class="hidden space-y-6">
+      <!-- Top Result Banner -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          
+          <!-- Score Gauge & Grade -->
+          <div class="lg:col-span-4 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-900 text-white text-center relative overflow-hidden">
+            <div class="scan-bar absolute inset-x-0 top-0 pointer-events-none"></div>
+            <span class="text-[11px] font-mono uppercase tracking-widest text-sky-400">Nilai Akhir Ujian Praktik</span>
+            <div id="finalScoreValue" class="text-6xl font-mono font-extrabold tracking-tight my-2 text-white">0</div>
+            <div id="finalGradeBadge" class="px-3.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30">
+              Grade -
+            </div>
+
+            <!-- Power / Boot Status Indicator -->
+            <div id="bootStatusBox" class="mt-5 w-full p-3.5 rounded-xl border text-left flex items-center gap-3">
+              <div id="bootStatusIcon" class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"></div>
+              <div>
+                <div id="bootStatusTitle" class="text-xs font-bold uppercase tracking-wider">-</div>
+                <div id="bootStatusSub" class="text-[11px] opacity-90">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Score Breakdown & Download Action -->
+          <div class="lg:col-span-8 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Rincian Koreksi & Evaluasi Rakitan</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Berikut adalah hasil koreksi otomatis terhadap kesesuaian spesifikasi dan kelengkapan komponen utama.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onclick="downloadMarkdownReport()"
+                  class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 glow-active"
+                >
+                  <i data-lucide="download" class="w-4 h-4"></i>
+                  <span>Download Lembar Jawaban (.md)</span>
+                </button>
+                <button
+                  type="button"
+                  onclick="returnToWorkbench()"
+                  class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-all flex items-center gap-1.5"
+                >
+                  <i data-lucide="sliders" class="w-4 h-4"></i>
+                  <span>Revisi Rakitan</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Auto Filename Info -->
+            <div class="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2 text-sky-900">
+                <i data-lucide="file-code" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                <span>Nama File Otomatis:</span>
+                <code id="autoMdFilename" class="font-mono font-bold text-sky-700 bg-white px-2 py-0.5 rounded border border-sky-200">Jawaban_RakitPC.md</code>
+              </div>
+              <button
+                type="button"
+                onclick="copyMarkdownSource()"
+                class="text-sky-700 hover:text-sky-900 font-semibold underline flex items-center gap-1"
+              >
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin Isi Markdown
+              </button>
+            </div>
+
+            <!-- 5 Metric Bars -->
+            <div id="metricBarsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Detailed Point Correction Log & Component Audit Table -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Correction Feedback Log -->
+        <div class="lg:col-span-6 glass-card rounded-3xl p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="clipboard-check" class="w-5 h-5 text-indigo-600"></i>
+            <h3 class="text-base font-extrabold text-slate-900">Log Koreksi Poin & Analisis Kebutuhan</h3>
+          </div>
+          <div id="evaluationLogsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Installed Components Table & Markdown Preview -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="glass-card rounded-3xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i data-lucide="list-checks" class="w-5 h-5 text-sky-600"></i>
+                <h3 class="text-base font-extrabold text-slate-900">Daftar Komponen yang Dipilih</h3>
+              </div>
+              <span id="summaryTotalPower" class="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold">Est. Daya: 0W</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-500 uppercase font-mono text-[10px]">
+                    <th class="py-2 pr-2">Slot</th>
+                    <th class="py-2 px-2">Komponen</th>
+                    <th class="py-2 px-2">Spesifikasi Kunci</th>
+                    <th class="py-2 pl-2 text-right">Harga</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryPartsTableBody" class="divide-y divide-slate-200/60"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Preview Dokumen Markdown -->
+          <div class="glass-card rounded-3xl p-6">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-emerald-600"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Pratinjau Isi Dokumen (.md)</h4>
+              </div>
+              <span class="text-[11px] text-slate-400 font-mono">Siap Diunduh</span>
+            </div>
+            <pre id="markdownPreviewBox" class="p-4 rounded-2xl bg-slate-900 text-slate-100 font-mono text-[11px] leading-relaxed overflow-x-auto max-h-60 custom-scrollbar"></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Confirmation Modal before Evaluating Build -->
+  <div id="confirmSubmitModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center">
+        <i data-lucide="power" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-extrabold text-slate-900">Uji Nyala Komputer & Kunci Jawaban?</h3>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          Sistem akan melakukan simulasi <em>Power-On Self-Test (POST)</em> dan mengoreksi poin rakitan Anda. Ingat, jika ada komponen utama yang terlupa atau tidak kompatibel sehingga PC gagal menyala, berlaku <strong>pengurangan poin -30</strong>.
+        </p>
+      </div>
+      <div id="modalSlotWarning" class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium"></div>
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button
+          type="button"
+          onclick="closeConfirmSubmitModal()"
+          class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+        >
+          Periksa Kembali
+        </button>
+        <button
+          type="button"
+          onclick="evaluateBuildAndShowResult()"
+          class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-md shadow-sky-600/20 transition-all"
+        >
+          Ya, Nyalakan & Lihat Nilai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900 text-white text-xs font-semibold shadow-xl border border-slate-700">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastText">Berhasil</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mx-auto w-full max-w-7xl px-4 sm:px-6 py-5 text-center sm:flex sm:items-center sm:justify-between text-xs text-slate-400 border-t border-slate-200/70 mt-8">
+    <div>
+      Ujian Praktik <strong>Arsitektur dan Jaringan Komputer</strong> • Dosen: <span class="text-slate-600 font-medium">Rendy Almaheri Adhi Pratama, S.Kom., M.Kom.</span>
+    </div>
+    <div class="font-mono mt-1 sm:mt-0">
+      SIMULASI RAKIT PC • LOW-END TO HIGH-END USER
+    </div>
+  </footer>
+
+  <script>
+    // ================= 1. DATA 47 MAHASISWA =================
+    const STUDENT_LIST = [
+      "Agung Putra Pratama",
+      "Amarusali Ahmadinejad Soetomo",
+      "Ananda Aulia",
+      "Andien Muliani",
+      "Arbaatul Meilinda Hidayanti",
+      "Arsyinnda Nadine Andiska",
+      "Ataya Fikri Risqullah",
+      "Bimo Arianto",
+      "Celvin",
+      "Delon Hasiholan L. Gaol",
+      "Elisa Agustina",
+      "Febrian Gratiano Ebenezer Manik",
+      "Gideon Chriswondo",
+      "Hawa Cahaya Harta",
+      "Intan Aurelie Khanzania",
+      "Intan Permata Sari",
+      "Iqbal Fauzi Hidayatullah",
+      "Jenny Pasmah Rianti",
+      "Keycia Aurellita",
+      "M Nabil Fauzan",
+      "M Vargas Sharbagimov",
+      "M. Fikry Satriansyah",
+      "M. Haikal Bariqli",
+      "M. Reyfan",
+      "M. Tegar Marhaban",
+      "M. Zaki Fathan Pratama",
+      "Marissa Aprilia",
+      "Mayasaroh",
+      "Muhammad Faiz",
+      "Muhammad Fajeri Satria",
+      "Muhammad Fardhan",
+      "Muhammad Fathir Saragih",
+      "Muhammad Fhatur Rahman",
+      "Muhammad Rasyah Al Bukhori",
+      "Mutiana",
+      "Nursyifa Ananda Wijaya",
+      "Rafi Aziz",
+      "Rafif Esqi Musyafa'",
+      "Rahmayanti",
+      "Rizky Karuna Vinaya",
+      "Safina Naifah Ramadhani",
+      "Sefti Meliyuniar",
+      "Surya Saputra",
+      "Syarif Hidayatullah",
+      "Tristian Edwindo",
+      "Wahyuanto",
+      "Zahra Maura"
+    ];
+
+    // ================= 2. SKENARIO PEKERJAAN (LOW TO HIGH END) =================
+    // Catatan: Tidak menampilkan hint spesifikasi secara eksplisit ke mahasiswa, hanya deskripsi pekerjaan & tuntutan operasional.
+    const JOB_PROFILES = [
+      {
+        id: "JOB-01",
+        title: "Staf Administrasi & Kasir Retail (POS)",
+        persona: "Klien: Toko Retail & Gudang Distribusi Harian",
+        description: "Komputer akan ditempatkan di meja kasir dan administrasi gudang yang menyala 10 jam sehari. Pekerjaan utama meliputi pencatatan transaksi kasir berbasis web, pengelolaan tabel stok barang harian, cetak faktur, dan rapat koordinasi daring mingguan.",
+        apps: [
+          "Aplikasi Point of Sale (POS) berbasis Browser",
+          "Microsoft Excel, Word & pembaca dokumen PDF",
+          "Google Meet / Zoom & WhatsApp Desktop"
+        ],
+        requirements: [
+          "Konsumsi daya listrik harus hemat dan komponen tidak menghasilkan panas berlebih.",
+          "Waktu menyala (booting) sistem operasi dan buka tutup aplikasi kasir harus responsif.",
+          "Tidak membutuhkan pengolahan grafis 3D berat, namun wajib mampu menampilkan layar monitor dengan lancar.",
+          "Anggaran sangat ketat karena perusahaan akan merakit banyak unit sekaligus."
+        ],
+        budgetMax: 6000000,
+        rules: {
+          tierName: "Low-End (Entry Office)",
+          minCpuTier: 1, idealCpuTier: [1, 2],
+          minGpuTier: 0, idealGpuTier: [0, 1],
+          minRamGB: 8, idealRamGB: 16,
+          minStorageGB: 256, requireNVMe: false,
+          minCoolerTier: 1
+        }
+      },
+      {
+        id: "JOB-02",
+        title: "Executive Accounting & Enterprise ERP Specialist",
+        persona: "Klien: Divisi Keuangan & Audit Korporasi",
+        description: "Digunakan oleh analis akuntansi senior untuk mengolah pembukuan tahunan, rekonsiliasi ratusan ribu baris data pajak di spreadsheet dengan rumus kompleks, serta menjalankan sistem ERP perusahaan dan pelaporan pajak secara bersamaan.",
+        apps: [
+          "Microsoft Excel (File Makro & Pivot ratusan ribu baris)",
+          "SAP GUI / Odoo ERP & Accurate Desktop",
+          "Multi-tab Browser (25+ tab portal pajak & perbankan)"
+        ],
+        requirements: [
+          "Multitasking membuka banyak jendela dokumen dan puluhan tab browser tidak boleh mengalami lag atau reload ulang.",
+          "Kecepatan baca-tulis file database lokal dan pencarian arsip laporan keuangan harus instan.",
+          "Stabilitas sistem tinggi untuk jam kerja panjang dengan anggaran kelas kantor menengah."
+        ],
+        budgetMax: 9500000,
+        rules: {
+          tierName: "Low-to-Mid Range (Productivity Office)",
+          minCpuTier: 2, idealCpuTier: [2, 3],
+          minGpuTier: 0, idealGpuTier: [0, 1],
+          minRamGB: 16, idealRamGB: 16,
+          minStorageGB: 512, requireNVMe: true,
+          minCoolerTier: 1
+        }
+      },
+      {
+        id: "JOB-03",
+        title: "Full-Stack Web Developer & Cloud DevOps",
+        persona: "Klien: Software Engineer pada Startup Finansial",
+        description: "Digunakan setiap hari untuk menulis kode program, menjalankan beberapa container microservice secara lokal, kompilasi project TypeScript/Rust, serta menguji aplikasi pada emulator perangkat mobile dan database lokal secara simultan.",
+        apps: [
+          "VS Code, JetBrains IntelliJ IDEA & Git",
+          "Docker Desktop (6+ Container aktif) & Kubernetes Lokal",
+          "Android Studio Emulator, PostgreSQL & Postman"
+        ],
+        requirements: [
+          "Proses kompilasi kode dan menjalankan beberapa container virtualisasi membutuhkan prosesor multi-core yang tangguh.",
+          "Kapasitas memori (RAM) harus lega agar sistem tidak kehabisan memori saat Docker dan emulator berjalan bersama.",
+          "Penyimpanan wajib berkecepatan tinggi (NVMe) dengan ruang cukup untuk image container dan repositori proyek."
+        ],
+        budgetMax: 16500000,
+        rules: {
+          tierName: "Mid-Range (Developer Workstation)",
+          minCpuTier: 3, idealCpuTier: [3, 4],
+          minGpuTier: 1, idealGpuTier: [1, 2],
+          minRamGB: 32, idealRamGB: 32,
+          minStorageGB: 1000, requireNVMe: true,
+          minCoolerTier: 2
+        }
+      },
+      {
+        id: "JOB-04",
+        title: "UI/UX Product Designer & 2D Brand Illustrator",
+        persona: "Klien: Desainer Produk Digital & Agensi Kreatif",
+        description: "Pekerjaan sehari-hari berfokus pada perancangan antarmuka aplikasi skala besar dengan ribuan komponen desain, manipulasi foto resolusi tinggi berlapis-lapis, pembuatan ilustrasi vektor kompleks, dan prototipe interaktif.",
+        apps: [
+          "Figma Desktop (Design System ratusan halaman)",
+          "Adobe Photoshop, Illustrator & After Effects (Motion UI ringan)",
+          "Blender (Mockup produk 3D sederhana)"
+        ],
+        requirements: [
+          "Performa single-core prosesor dan kapasitas RAM harus tinggi agar kanvas desain ukuran besar dapat di-zoom dan digeser dengan mulus.",
+          "Membutuhkan kartu grafis (GPU) tersendiri untuk akselerasi viewport grafis, efek blur/shader, dan pratinjau animasi antarmuka.",
+          "Ruang penyimpanan cepat minimal 1 TB untuk menyimpan aset mentah, font, dan file proyek klien."
+        ],
+        budgetMax: 18500000,
+        rules: {
+          tierName: "Mid-Range (Creative Design)",
+          minCpuTier: 3, idealCpuTier: [3, 4],
+          minGpuTier: 2, idealGpuTier: [2, 3],
+          minRamGB: 32, idealRamGB: 32,
+          minStorageGB: 1000, requireNVMe: true,
+          minCoolerTier: 2
+        }
+      },
+      {
+        id: "JOB-05",
+        title: "4K Video Editor & Motion Graphics Creator",
+        persona: "Klien: Rumah Produksi Iklan & Konten Digital",
+        description: "Komputer digunakan untuk menyunting video 4K multi-kamera, pemberian efek visual (motion graphics), koreksi warna (color grading), serta rendering akhir video berdurasi panjang dengan tenggat waktu harian yang padat.",
+        apps: [
+          "DaVinci Resolve Studio & Adobe Premiere Pro",
+          "Adobe After Effects & Cinema 4D Lite",
+          "Media Encoder (Batch Rendering H.264/H.265/ProRes)"
+        ],
+        requirements: [
+          "Wajib menggunakan kartu grafis (GPU) dengan VRAM memadai untuk pemutaran timeline 4K dan efek warna secara real-time.",
+          "Prosesor harus memiliki banyak core dan didinginkan dengan baik karena sering bekerja 100% saat merender video.",
+          "Membutuhkan kapasitas RAM minimal 32 GB (ideal 64 GB) dan penyimpanan NVMe berkapasitas besar untuk media cache video."
+        ],
+        budgetMax: 29000000,
+        rules: {
+          tierName: "Upper Mid-Range (Prosumer Video)",
+          minCpuTier: 4, idealCpuTier: [4, 5],
+          minGpuTier: 3, idealGpuTier: [3, 4],
+          minRamGB: 32, idealRamGB: 64,
+          minStorageGB: 2000, requireNVMe: true,
+          minCoolerTier: 3
+        }
+      },
+      {
+        id: "JOB-06",
+        title: "3D Architectural Visualizer & CAD/BIM Engineer",
+        persona: "Klien: Konsultan Arsitektur & Konstruksi Gedung",
+        description: "Digunakan untuk memodelkan struktur bangunan bertingkat (BIM), merancang interior detail tinggi, serta melakukan photorealistic ray-tracing rendering dan walk-through real-time untuk presentasi klien.",
+        apps: [
+          "AutoCAD, Autodesk Revit & SketchUp Pro",
+          "Lumion, D5 Render & Enscape (Real-time Ray Tracing)",
+          "3ds Max + V-Ray / Corona Renderer"
+        ],
+        requirements: [
+          "Aplikasi real-time rendering seperti Lumion dan D5 Render sangat bergantung pada kekuatan GPU kelas atas dengan VRAM besar.",
+          "Prosesor kencang dengan sistem pendingin mumpuni diperlukan untuk kalkulasi cahaya (CPU/GPU rendering) berjam-jam.",
+          "Memori RAM besar dan penyimpanan cepat berkapasitas minimal 2 TB wajib tersedia untuk menampung tekstur 4K/8K."
+        ],
+        budgetMax: 34000000,
+        rules: {
+          tierName: "Upper Mid-to-High End (3D CAD/BIM)",
+          minCpuTier: 4, idealCpuTier: [4, 5],
+          minGpuTier: 4, idealGpuTier: [4, 5],
+          minRamGB: 32, idealRamGB: 64,
+          minStorageGB: 2000, requireNVMe: true,
+          minCoolerTier: 3
+        }
+      },
+      {
+        id: "JOB-07",
+        title: "AI / Machine Learning Engineer & Local LLM Researcher",
+        persona: "Klien: Laboratorium Riset Kecerdasan Buatan & Data Science",
+        description: "Stasiun kerja utama untuk melatih model Deep Learning, melakukan fine-tuning Large Language Model (LLM) secara lokal, pemrosesan visi komputer, serta membangkitkan aset video/gambar generatif berskala produksi.",
+        apps: [
+          "PyTorch, TensorFlow, CUDA Toolkit & JupyterLab",
+          "Ollama / vLLM (Menjalankan model parameter besar lokal)",
+          "ComfyUI / Stable Diffusion & Docker GPU Containers"
+        ],
+        requirements: [
+          "Kapasitas VRAM pada GPU dan kecepatan komputasi tensor adalah prioritas tertinggi agar model AI tidak mengalami Out-of-Memory.",
+          "Kapasitas RAM sistem harus sangat besar (64 GB atau lebih) untuk memuat dataset masif di memori sebelum dikirim ke GPU.",
+          "Suplai daya (PSU) dan sistem pendingin harus kelas tertinggi karena beban kerja training berjalan nonstop."
+        ],
+        budgetMax: 55000000,
+        rules: {
+          tierName: "High-End Workstation (AI & Deep Learning)",
+          minCpuTier: 4, idealCpuTier: [5],
+          minGpuTier: 5, idealGpuTier: [5],
+          minRamGB: 64, idealRamGB: 64,
+          minStorageGB: 2000, requireNVMe: true,
+          minCoolerTier: 3
+        }
+      },
+      {
+        id: "JOB-08",
+        title: "AAA 3D Game Developer & VFX Simulation Artist",
+        persona: "Klien: Studio Pengembang Game & Efek Visual Film",
+        description: "Digunakan untuk membangun dunia game 3D skala masif, kompilasi ribuan shader, simulasi partikel fluida/asap/kehancuran objek, serta lightmap baking resolusi tinggi.",
+        apps: [
+          "Unreal Engine 5.5 (Lumen & Nanite aktif)",
+          "SideFX Houdini (Simulasi VFX) & Blender / Maya",
+          "Visual Studio C++ (Kompilasi source code engine)"
+        ],
+        requirements: [
+          "Membutuhkan kombinasi ekstrem: prosesor jumlah core tertinggi untuk kompilasi engine/simulasi dan GPU flagship untuk viewport Unreal Engine 5.",
+          "RAM minimal 64 GB dan penyimpanan NVMe kapasitas jumbo (2 TB+) agar pemuatan aset game puluhan gigabyte tidak tersendat.",
+          "Wajib menggunakan pendingin prosesor kelas berat dan catu daya (PSU) berdaya besar yang stabil."
+        ],
+        budgetMax: 52000000,
+        rules: {
+          tierName: "High-End Workstation (Game Dev & VFX)",
+          minCpuTier: 5, idealCpuTier: [5],
+          minGpuTier: 4, idealGpuTier: [5],
+          minRamGB: 64, idealRamGB: 64,
+          minStorageGB: 2000, requireNVMe: true,
+          minCoolerTier: 3
+        }
+      }
+    ];
+
+    // ================= 3. KATALOG KOMPONEN (8 KATEGORI) =================
+    const CATEGORIES = [
+      { id: "cpu", name: "Prosesor (CPU)", short: "CPU", icon: "cpu" },
+      { id: "mobo", name: "Motherboard", short: "Motherboard", icon: "circuit-board" },
+      { id: "ram", name: "Memori (RAM)", short: "RAM", icon: "memory-stick" },
+      { id: "gpu", name: "Kartu Grafis (GPU)", short: "GPU", icon: "monitor-play" },
+      { id: "storage", name: "Penyimpanan (Storage)", short: "Storage", icon: "hard-drive" },
+      { id: "psu", name: "Power Supply (PSU)", short: "PSU", icon: "zap" },
+      { id: "cooler", name: "Pendingin CPU", short: "Cooler", icon: "fan" },
+      { id: "case", name: "Casing PC", short: "Casing", icon: "box" }
+    ];
+
+    const PARTS_CATALOG = {
+      cpu: [
+        { id: "cpu_i3_12100", name: "Intel Core i3-12100 (4C/8T, up to 4.3GHz)", socket: "LGA1700", hasIGPU: true, tdp: 60, tier: 1, price: 1650000, spec: "Soket LGA1700 • 4 Core / 8 Thread • Intel UHD 730 (Ada iGPU) • 60W" },
+        { id: "cpu_r5_5600g", name: "AMD Ryzen 5 5600G (6C/12T, up to 4.4GHz)", socket: "AM4", hasIGPU: true, tdp: 65, tier: 2, price: 1950000, spec: "Soket AM4 • 6 Core / 12 Thread • Radeon Vega 7 (Ada iGPU) • 65W" },
+        { id: "cpu_i5_12400f", name: "Intel Core i5-12400F (6C/12T, up to 4.4GHz)", socket: "LGA1700", hasIGPU: false, tdp: 65, tier: 2, price: 1850000, spec: "Soket LGA1700 • 6 Core / 12 Thread • Seri F (Tanpa iGPU) • 65W" },
+        { id: "cpu_r5_7500f", name: "AMD Ryzen 5 7500F (6C/12T, up to 5.0GHz)", socket: "AM5", hasIGPU: false, tdp: 65, tier: 3, price: 2550000, spec: "Soket AM5 • 6 Core / 12 Thread • Seri F (Tanpa iGPU) • 65W" },
+        { id: "cpu_i5_14500", name: "Intel Core i5-14500 (14C/20T, up to 5.0GHz)", socket: "LGA1700", hasIGPU: true, tdp: 115, tier: 3, price: 3850000, spec: "Soket LGA1700 • 14 Core / 20 Thread • Intel UHD 770 (Ada iGPU) • 115W" },
+        { id: "cpu_r7_7700x", name: "AMD Ryzen 7 7700X (8C/16T, up to 5.4GHz)", socket: "AM5", hasIGPU: true, tdp: 105, tier: 4, price: 4850000, spec: "Soket AM5 • 8 Core / 16 Thread • Radeon Graphics (Ada iGPU) • 105W" },
+        { id: "cpu_i7_14700k", name: "Intel Core i7-14700K (20C/28T, up to 5.6GHz)", socket: "LGA1700", hasIGPU: true, tdp: 190, tier: 4, price: 6450000, spec: "Soket LGA1700 • 20 Core / 28 Thread • Intel UHD 770 (Ada iGPU) • 190W" },
+        { id: "cpu_r9_7950x", name: "AMD Ryzen 9 7950X (16C/32T, up to 5.7GHz)", socket: "AM5", hasIGPU: true, tdp: 170, tier: 5, price: 8950000, spec: "Soket AM5 • 16 Core / 32 Thread • Radeon Graphics (Ada iGPU) • 170W" },
+        { id: "cpu_i9_14900k", name: "Intel Core i9-14900K (24C/32T, up to 6.0GHz)", socket: "LGA1700", hasIGPU: true, tdp: 250, tier: 5, price: 9250000, spec: "Soket LGA1700 • 24 Core / 32 Thread • Intel UHD 770 (Ada iGPU) • 250W" }
+      ],
+      mobo: [
+        { id: "mobo_a520_d4", name: "ASRock A520M-HDV Micro-ATX", socket: "AM4", ramType: "DDR4", tier: 1, price: 950000, spec: "Soket AM4 • Mendukung RAM DDR4 • 1x M.2 NVMe • Micro-ATX" },
+        { id: "mobo_b550_d4", name: "MSI B550M PRO-VDH WIFI", socket: "AM4", ramType: "DDR4", tier: 2, price: 1750000, spec: "Soket AM4 • Mendukung RAM DDR4 • 2x M.2 PCIe 4.0 • Wi-Fi" },
+        { id: "mobo_h610_d4", name: "ASUS Prime H610M-K D4", socket: "LGA1700", ramType: "DDR4", tier: 1, price: 1250000, spec: "Soket LGA1700 • Mendukung RAM DDR4 • 1x M.2 NVMe • Micro-ATX" },
+        { id: "mobo_b760_d4", name: "Gigabyte B760M DS3H DDR4", socket: "LGA1700", ramType: "DDR4", tier: 2, price: 1950000, spec: "Soket LGA1700 • Mendukung RAM DDR4 • 4 Slot RAM • 2x M.2 NVMe" },
+        { id: "mobo_b760_d5", name: "MSI MAG B760 Tomahawk WIFI DDR5", socket: "LGA1700", ramType: "DDR5", tier: 3, price: 3350000, spec: "Soket LGA1700 • Mendukung RAM DDR5 • VRM 12+1+1 Phase • ATX" },
+        { id: "mobo_z790_d5", name: "ASUS TUF Gaming Z790-Plus WIFI DDR5", socket: "LGA1700", ramType: "DDR5", tier: 5, price: 4850000, spec: "Soket LGA1700 • Mendukung RAM DDR5 • VRM 16+1 DrMOS • PCIe 5.0" },
+        { id: "mobo_b650_d5", name: "MSI PRO B650M-A WIFI DDR5", socket: "AM5", ramType: "DDR5", tier: 3, price: 2650000, spec: "Soket AM5 • Mendukung RAM DDR5 • 2x M.2 Gen4 • Wi-Fi 6E" },
+        { id: "mobo_x670e_d5", name: "ASUS ROG Strix X670E-F Gaming WIFI", socket: "AM5", ramType: "DDR5", tier: 5, price: 6250000, spec: "Soket AM5 • Mendukung RAM DDR5 • VRM 16+2 Stage • PCIe 5.0 Ready" }
+      ],
+      ram: [
+        { id: "ram_8_d4", name: "8GB (2x4GB) DDR4 3200MHz Dual-Channel", ramType: "DDR4", capacity: 8, tier: 1, price: 420000, spec: "Tipe DDR4 • Kapasitas 8 GB • Kecepatan 3200 MHz" },
+        { id: "ram_16_d4", name: "16GB (2x8GB) DDR4 3200MHz Dual-Channel", ramType: "DDR4", capacity: 16, tier: 2, price: 680000, spec: "Tipe DDR4 • Kapasitas 16 GB • Kecepatan 3200 MHz" },
+        { id: "ram_32_d4", name: "32GB (2x16GB) DDR4 3600MHz Dual-Channel", ramType: "DDR4", capacity: 32, tier: 3, price: 1250000, spec: "Tipe DDR4 • Kapasitas 32 GB • Kecepatan 3600 MHz" },
+        { id: "ram_16_d5", name: "16GB (2x8GB) DDR5 5600MHz Dual-Channel", ramType: "DDR5", capacity: 16, tier: 2, price: 1150000, spec: "Tipe DDR5 • Kapasitas 16 GB • Kecepatan 5600 MHz" },
+        { id: "ram_32_d5", name: "32GB (2x16GB) DDR5 6000MHz CL30", ramType: "DDR5", capacity: 32, tier: 3, price: 1950000, spec: "Tipe DDR5 • Kapasitas 32 GB • Kecepatan 6000 MHz Low Latency" },
+        { id: "ram_64_d5", name: "64GB (2x32GB) DDR5 6000MHz Workstation Kit", ramType: "DDR5", capacity: 64, tier: 4, price: 3750000, spec: "Tipe DDR5 • Kapasitas 64 GB • Kecepatan 6000 MHz ECC On-Die" },
+        { id: "ram_128_d5", name: "128GB (4x32GB) DDR5 5600MHz Pro Kit", ramType: "DDR5", capacity: 128, tier: 5, price: 7200000, spec: "Tipe DDR5 • Kapasitas 128 GB • Kapasitas Masif Komputasi Berat" }
+      ],
+      gpu: [
+        { id: "gpu_igpu_only", name: "Tanpa Kartu Grafis Tambahan (Andalkan iGPU Prosesor)", vram: 0, tdp: 0, tier: 0, isDedicated: false, price: 0, spec: "Rp 0 • Menggunakan chip grafis bawaan prosesor (Wajib CPU ber-iGPU)" },
+        { id: "gpu_gt1030", name: "NVIDIA GeForce GT 1030 2GB GDDR5", vram: 2, tdp: 30, tier: 1, isDedicated: true, price: 1150000, spec: "VRAM 2 GB • Daya 30W • Output Layar Dasar & Multi-Monitor Office" },
+        { id: "gpu_rx6600", name: "AMD Radeon RX 6600 8GB GDDR6", vram: 8, tdp: 132, tier: 2, isDedicated: true, price: 3150000, spec: "VRAM 8 GB • Daya 132W • Grafis 1080p & Akselerasi Viewport Menengah" },
+        { id: "gpu_rtx3060_12", name: "NVIDIA GeForce RTX 3060 12GB GDDR6", vram: 12, tdp: 170, tier: 3, isDedicated: true, price: 4450000, spec: "VRAM 12 GB • Daya 170W • CUDA Cores • Cocok untuk Desain, Video & Entry AI" },
+        { id: "gpu_rtx4060ti_16", name: "NVIDIA GeForce RTX 4060 Ti 16GB GDDR6", vram: 16, tdp: 165, tier: 3, isDedicated: true, price: 7850000, spec: "VRAM 16 GB • Daya 165W • Ada Lovelace • NVENC AV1 & VRAM Lega" },
+        { id: "gpu_rtx4070s", name: "NVIDIA GeForce RTX 4070 Super 12GB GDDR6X", vram: 12, tdp: 220, tier: 4, isDedicated: true, price: 10250000, spec: "VRAM 12 GB • Daya 220W • Ray Tracing & 3D Rendering Cepat" },
+        { id: "gpu_rtx4080s", name: "NVIDIA GeForce RTX 4080 Super 16GB GDDR6X", vram: 16, tdp: 320, tier: 5, isDedicated: true, price: 17500000, spec: "VRAM 16 GB • Daya 320W • Performa Tinggi 4K Render, CAD & AI" },
+        { id: "gpu_rtx4090", name: "NVIDIA GeForce RTX 4090 24GB GDDR6X Flagship", vram: 24, tdp: 450, tier: 5, isDedicated: true, price: 29500000, spec: "VRAM 24 GB • Daya 450W • Flagship Workstation AI/LLM, VFX & 8K Render" }
+      ],
+      storage: [
+        { id: "sto_hdd_1tb", name: "1TB HDD SATA3 7200RPM Mechanical Drive", capacity: 1000, type: "HDD", isNVMe: false, tier: 1, price: 650000, spec: "Tipe HDD Mekanik (180 MB/s) • 1 TB • Lambat untuk Booting OS Modern" },
+        { id: "sto_sata_256", name: "256GB SSD SATA3 2.5-Inch (550 MB/s)", capacity: 256, type: "SATA SSD", isNVMe: false, tier: 1, price: 360000, spec: "Tipe SSD SATA • Kapasitas 256 GB • Baca 550 MB/s" },
+        { id: "sto_nvme_512", name: "512GB SSD M.2 NVMe PCIe Gen3 (3500 MB/s)", capacity: 512, type: "NVMe Gen3", isNVMe: true, tier: 2, price: 620000, spec: "Tipe M.2 NVMe Gen3 • Kapasitas 512 GB • Baca 3.500 MB/s" },
+        { id: "sto_nvme_1tb", name: "1TB SSD M.2 NVMe PCIe Gen4 (5000 MB/s)", capacity: 1000, type: "NVMe Gen4", isNVMe: true, tier: 3, price: 1050000, spec: "Tipe M.2 NVMe Gen4 • Kapasitas 1 TB (1000 GB) • Baca 5.000 MB/s" },
+        { id: "sto_nvme_2tb", name: "2TB SSD M.2 NVMe PCIe Gen4 Pro (7300 MB/s)", capacity: 2000, type: "NVMe Gen4 Pro", isNVMe: true, tier: 4, price: 2350000, spec: "Tipe M.2 NVMe Gen4 DRAM • Kapasitas 2 TB (2000 GB) • Baca 7.300 MB/s" },
+        { id: "sto_nvme_4tb", name: "4TB Dual NVMe Gen4 RAID Workstation (7400 MB/s)", capacity: 4000, type: "NVMe Gen4 Extreme", isNVMe: true, tier: 5, price: 4650000, spec: "Tipe M.2 NVMe Gen4 • Kapasitas 4 TB (4000 GB) • Scratch Disk & Dataset Masif" }
+      ],
+      psu: [
+        { id: "psu_300_oem", name: "300W Generic PSU Tanpa Sertifikasi 80+", watt: 300, tier: 1, price: 250000, spec: "Kapasitas Murni ~240W • Tanpa 80+ • Hanya untuk PC daya sangat rendah" },
+        { id: "psu_450_bronze", name: "450W 80+ Bronze Certified Power Supply", watt: 450, tier: 2, price: 620000, spec: "Daya 450W • Efisiensi 80+ Bronze • Proteksi OVP/OPP/SCP" },
+        { id: "psu_650_bronze", name: "650W 80+ Bronze Semi-Modular PSU", watt: 650, tier: 3, price: 950000, spec: "Daya 650W • Efisiensi 80+ Bronze • Cocok untuk PC Mid-Range" },
+        { id: "psu_750_gold", name: "750W 80+ Gold Full-Modular ATX 3.0", watt: 750, tier: 4, price: 1650000, spec: "Daya 750W • Efisiensi 80+ Gold • Konektor PCIe 5.0 12VHPWR" },
+        { id: "psu_850_gold", name: "850W 80+ Gold Full-Modular ATX 3.0", watt: 850, tier: 4, price: 2050000, spec: "Daya 850W • Efisiensi 80+ Gold • Stabil untuk Workstation & GPU Tinggi" },
+        { id: "psu_1000_plat", name: "1000W 80+ Platinum Full-Modular Workstation", watt: 1000, tier: 5, price: 3250000, spec: "Daya 1000W • Efisiensi 80+ Platinum • Siap untuk RTX 4090 & Beban Penuh" }
+      ],
+      cooler: [
+        { id: "cool_stock", name: "Standard Aluminum Stock Heatsink Fan", maxTdp: 75, tier: 1, price: 120000, spec: "Pendingin Udara Standar • Kapasitas Termal hingga ~75W TDP" },
+        { id: "cool_tower_single", name: "Single-Tower 4-Heatpipe 120mm Air Cooler", maxTdp: 150, tier: 2, price: 350000, spec: "Pendingin Tower 120mm • Kapasitas Termal hingga ~150W TDP" },
+        { id: "cool_tower_dual", name: "Dual-Tower 6-Heatpipe Heavy Duty Air Cooler", maxTdp: 230, tier: 3, price: 780000, spec: "Pendingin Dual-Tower • Kapasitas Termal hingga ~230W TDP" },
+        { id: "cool_aio_360", name: "360mm Liquid Cooler (AIO) Triple Radiator", maxTdp: 320, tier: 4, price: 1750000, spec: "Watercooling 360mm Radiator • Kapasitas Termal hingga ~320W TDP" }
+      ],
+      case: [
+        { id: "case_office", name: "Compact mATX Slim Office Chassis", tier: 1, price: 350000, spec: "Casing Standar Kantor • 1x Fan Bawaan • Hemat Ruang" },
+        { id: "case_mesh_mid", name: "Airflow Mesh Mid-Tower (3x PWM Fans)", tier: 2, price: 720000, spec: "Mid-Tower Mesh Depan • 3x Kipas Sirkulasi • Airflow Baik" },
+        { id: "case_workstation", name: "Full-Tower Silent & High-Airflow Workstation Chassis", tier: 3, price: 1550000, spec: "Full-Tower Luas • Muat GPU Besar & Radiator 360mm • Filter Debu" }
+      ]
+    };
+
+    // ================= 4. STATE APLIKASI =================
+    const appState = {
+      currentStep: 1,
+      student: {
+        nama: "",
+        npm: "",
+        jurusan: ""
+      },
+      spinsRemaining: 3,
+      rolledJobs: [],
+      selectedJob: null,
+      activeCategory: "cpu",
+      build: {
+        cpu: null,
+        mobo: null,
+        ram: null,
+        gpu: null,
+        storage: null,
+        psu: null,
+        cooler: null,
+        case: null
+      },
+      lastEvaluation: null
+    };
+
+    // ================= 5. HELPER FUNCTIONS =================
+    function formatRupiah(num) {
+      return "Rp " + Number(num || 0).toLocaleString("id-ID");
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toastBox");
+      const txt = document.getElementById("toastText");
+      txt.textContent = msg;
+      box.classList.remove("hidden");
+      box.classList.add("flex");
+      if (window._toastTimer) clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        box.classList.add("hidden");
+        box.classList.remove("flex");
+      }, 3000);
+    }
+
+    // ================= 6. INITIALIZATION & STEP 1 =================
+    function initApp() {
+      populateStudentSelect(STUDENT_LIST);
+      renderCategoryTabs();
+      renderSchematicSlots();
+      renderCatalogItems();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function populateStudentSelect(list) {
+      const select = document.getElementById("selectMahasiswa");
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Pilih Nama Mahasiswa (' + list.length + ' Peserta) --</option>';
+      list.forEach((name, idx) => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = (STUDENT_LIST.indexOf(name) + 1) + ". " + name;
+        if (name === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+      const countEl = document.getElementById("studentFilterCount");
+      countEl.textContent = "Menampilkan " + list.length + " dari " + STUDENT_LIST.length + " nama mahasiswa terdaftar.";
+    }
+
+    function filterStudentList() {
+      const q = document.getElementById("searchStudentInput").value.trim().toLowerCase();
+      const filtered = STUDENT_LIST.filter(n => n.toLowerCase().includes(q));
+      populateStudentSelect(filtered);
+      if (filtered.length === 1) {
+        document.getElementById("selectMahasiswa").value = filtered[0];
+      }
+      validateStep1Form();
+    }
+
+    function selectJurusan(jurusan) {
+      appState.student.jurusan = jurusan;
+      const buttons = document.querySelectorAll(".jurusan-btn");
+      buttons.forEach(btn => {
+        btn.classList.remove("border-sky-500", "bg-sky-50/70", "ring-2", "ring-sky-500/20");
+        btn.classList.add("border-slate-200", "bg-white");
+      });
+      const idKey = "jurusanBtn_" + jurusan.replace(/\s+/g, "_");
+      const activeBtn = document.getElementById(idKey);
+      if (activeBtn) {
+        activeBtn.classList.remove("border-slate-200", "bg-white");
+        activeBtn.classList.add("border-sky-500", "bg-sky-50/70", "ring-2", "ring-sky-500/20");
+      }
+      validateStep1Form();
+    }
+
+    function validateStep1Form() {
+      const nama = document.getElementById("selectMahasiswa").value.trim();
+      const npm = document.getElementById("inputNpm").value.trim();
+      const jurusan = appState.student.jurusan;
+
+      appState.student.nama = nama;
+      appState.student.npm = npm;
+
+      const isValid = nama !== "" && npm.length >= 4 && jurusan !== "";
+      const btn = document.getElementById("btnStartStep2");
+      const msg = document.getElementById("step1ValidationMsg");
+
+      if (isValid) {
+        btn.disabled = false;
+        btn.className = "w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer";
+        msg.className = "text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 flex items-center gap-2";
+        msg.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i><span>Data peserta lengkap! Silakan lanjut ke pengundian skenario pekerjaan.</span>';
+      } else {
+        btn.disabled = true;
+        btn.className = "w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white bg-slate-300 cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-sm";
+        msg.className = "text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center gap-2";
+        msg.innerHTML = '<i data-lucide="info" class="w-4 h-4 shrink-0"></i><span>Lengkapi Nama Mahasiswa, NPM (min. 4 karakter), dan pilih Jurusan untuk memulai sesi ujian.</span>';
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function proceedToStep2() {
+      if (!appState.student.nama || !appState.student.npm || !appState.student.jurusan) return;
+      document.getElementById("barNama").textContent = appState.student.nama;
+      document.getElementById("barNpm").textContent = appState.student.npm;
+      document.getElementById("barJurusan").textContent = appState.student.jurusan;
+      document.getElementById("navStep2").disabled = false;
+      jumpToStep(2);
+    }
+
+    // ================= 7. STEP 2: RANDOM JOB GENERATOR (MAX 3X) =================
+    function rollRandomJob() {
+      if (appState.spinsRemaining <= 0) {
+        showToast("Kesempatan acak 3x sudah habis! Pilih dari riwayat undian Anda.");
+        return;
+      }
+
+      // Pilih job acak yang belum pernah keluar di riwayat jika memungkinkan
+      const alreadyIds = appState.rolledJobs.map(j => j.id);
+      const pool = JOB_PROFILES.filter(j => !alreadyIds.includes(j.id));
+      const sourcePool = pool.length > 0 ? pool : JOB_PROFILES;
+      const randomJob = sourcePool[Math.floor(Math.random() * sourcePool.length)];
+
+      appState.spinsRemaining -= 1;
+      appState.rolledJobs.push(randomJob);
+      appState.selectedJob = randomJob;
+
+      updateSpinControlsUI();
+      renderSelectedJobDetail();
+      renderRolledJobsHistory();
+      showToast("Berhasil mengundi skenario: " + randomJob.title);
+    }
+
+    function updateSpinControlsUI() {
+      document.getElementById("spinLeftLabel").textContent = appState.spinsRemaining;
+      const btn = document.getElementById("btnRollJob");
+      const btnText = document.getElementById("btnRollJobText");
+      const usedCount = 3 - appState.spinsRemaining;
+
+      if (appState.spinsRemaining > 0) {
+        btnText.textContent = "Acak Tipe Pekerjaan (Spin #" + (usedCount + 1) + ")";
+      } else {
+        btnText.textContent = "Batas Acak 3x Habis";
+        btn.disabled = true;
+        btn.className = "px-5 py-3.5 rounded-2xl bg-slate-200 text-slate-500 font-bold text-sm cursor-not-allowed flex items-center gap-2";
+      }
+    }
+
+    function selectJobFromHistory(jobId) {
+      const found = appState.rolledJobs.find(j => j.id === jobId);
+      if (!found) return;
+      appState.selectedJob = found;
+      renderSelectedJobDetail();
+      renderRolledJobsHistory();
+    }
+
+    function renderSelectedJobDetail() {
+      const job = appState.selectedJob;
+      if (!job) return;
+
+      document.getElementById("jobEmptyState").classList.add("hidden");
+      document.getElementById("jobDetailContainer").classList.remove("hidden");
+
+      document.getElementById("jobCodeBadge").textContent = job.id;
+      document.getElementById("jobTitleText").textContent = job.title;
+      document.getElementById("jobClientPersona").textContent = job.persona;
+      document.getElementById("jobDescText").textContent = job.description;
+      document.getElementById("jobBudgetText").textContent = formatRupiah(job.budgetMax);
+
+      const appsEl = document.getElementById("jobAppsList");
+      appsEl.innerHTML = job.apps.map(a => `<li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span><span>${a}</span></li>`).join("");
+
+      const reqsEl = document.getElementById("jobReqsList");
+      reqsEl.innerHTML = job.requirements.map(r => `<li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span><span>${r}</span></li>`).join("");
+
+      // Update top bar badge
+      const badgeWrap = document.getElementById("barJobBadge");
+      badgeWrap.classList.remove("hidden");
+      badgeWrap.classList.add("flex");
+      document.getElementById("barJobTitle").textContent = job.id + " — " + job.title;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderRolledJobsHistory() {
+      const container = document.getElementById("rolledJobsHistory");
+      container.innerHTML = appState.rolledJobs.map((j, idx) => {
+        const isCurrent = appState.selectedJob && appState.selectedJob.id === j.id;
+        return `
+          <button
+            type="button"
+            onclick="selectJobFromHistory('${j.id}')"
+            class="w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-2 ${
+              isCurrent
+                ? "border-sky-500 bg-sky-50/90 text-sky-950 font-semibold shadow-sm"
+                : "border-slate-200 bg-slate-50/60 hover:bg-white text-slate-700"
+            }"
+          >
+            <div class="truncate">
+              <div class="text-[10px] font-mono text-slate-400">Undian #${idx + 1} • ${j.id}</div>
+              <div class="text-xs font-bold truncate">${j.title}</div>
+            </div>
+            <span class="text-[11px] font-mono shrink-0 px-2 py-0.5 rounded bg-white border border-slate-200">${formatRupiah(j.budgetMax)}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function lockJobAndStartBuild() {
+      if (!appState.selectedJob) {
+        showToast("Silakan acak tipe pekerjaan terlebih dahulu!");
+        return;
+      }
+      populateWorkbenchBrief();
+      document.getElementById("navStep3").disabled = false;
+      jumpToStep(3);
+    }
+
+    // ================= 8. STEP 3: WORKBENCH PERAKITAN (BLIND TEST) =================
+    function populateWorkbenchBrief() {
+      const job = appState.selectedJob;
+      if (!job) return;
+      document.getElementById("wbJobCode").textContent = job.id;
+      document.getElementById("wbJobTitle").textContent = job.title;
+      document.getElementById("wbJobDesc").textContent = job.description;
+      document.getElementById("wbMaxBudget").textContent = formatRupiah(job.budgetMax);
+      document.getElementById("wbJobReqs").innerHTML = job.requirements.map(r => `<li class="flex items-start gap-1.5"><span class="text-indigo-500">▸</span><span>${r}</span></li>`).join("");
+      updateWorkbenchCostAndSlots();
+    }
+
+    function renderCategoryTabs() {
+      const container = document.getElementById("categoryTabsContainer");
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = appState.activeCategory === cat.id;
+        const isFilled = Boolean(appState.build[cat.id]);
+        return `
+          <button
+            type="button"
+            onclick="selectCategory('${cat.id}')"
+            class="px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
+              isActive
+                ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                : isFilled
+                ? "bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+            }"
+          >
+            <i data-lucide="${cat.icon}" class="w-3.5 h-3.5"></i>
+            <span>${cat.short}</span>
+            ${isFilled ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ""}
+          </button>
+        `;
+      }).join("");
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function selectCategory(catId) {
+      appState.activeCategory = catId;
+      const catObj = CATEGORIES.find(c => c.id === catId);
+      if (catObj) {
+        document.getElementById("activeCategoryBadge").textContent = catObj.name;
+      }
+      renderCategoryTabs();
+      renderCatalogItems();
+      renderSchematicSlots();
+    }
+
+    function stepCategory(direction) {
+      const idx = CATEGORIES.findIndex(c => c.id === appState.activeCategory);
+      const nextIdx = (idx + direction + CATEGORIES.length) % CATEGORIES.length;
+      selectCategory(CATEGORIES[nextIdx].id);
+    }
+
+    function renderCatalogItems() {
+      const catId = appState.activeCategory;
+      const catObj = CATEGORIES.find(c => c.id === catId);
+      const items = PARTS_CATALOG[catId] || [];
+      const selectedItem = appState.build[catId];
+
+      // Update current category status bar
+      document.getElementById("catBarTitle").textContent = (catObj ? catObj.name : "Slot") + ":";
+      const selectedNameEl = document.getElementById("catBarSelectedName");
+      const clearBtn = document.getElementById("btnClearCatSlot");
+
+      if (selectedItem) {
+        selectedNameEl.textContent = selectedItem.name + " (" + formatRupiah(selectedItem.price) + ")";
+        selectedNameEl.className = "text-sky-700 font-bold";
+        clearBtn.classList.remove("hidden");
+      } else {
+        selectedNameEl.textContent = "Belum ada komponen dipasang (Slot Kosong)";
+        selectedNameEl.className = "text-slate-500 italic";
+        clearBtn.classList.add("hidden");
+      }
+
+      const grid = document.getElementById("partsCatalogGrid");
+      grid.innerHTML = items.map(item => {
+        const isChosen = selectedItem && selectedItem.id === item.id;
+        return `
+          <div
+            onclick="pickComponent('${catId}', '${item.id}')"
+            class="p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+              isChosen
+                ? "border-sky-500 bg-sky-50/70 ring-2 ring-sky-500/20 shadow-sm"
+                : "border-slate-200 bg-white hover:border-sky-300 hover:shadow-sm"
+            }"
+          >
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900 leading-snug">${item.name}</h4>
+                ${
+                  isChosen
+                    ? '<span class="px-2 py-0.5 rounded-md bg-sky-600 text-white text-[10px] font-mono font-bold shrink-0">TERPASANG</span>'
+                    : '<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-mono shrink-0">Pilih</span>'
+                }
+              </div>
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${item.spec}</p>
+            </div>
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[11px] font-mono text-slate-400 uppercase">${catObj ? catObj.short : ""}</span>
+              <span class="text-sm font-mono font-extrabold text-slate-900">${formatRupiah(item.price)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function pickComponent(catId, itemId) {
+      const list = PARTS_CATALOG[catId] || [];
+      const found = list.find(i => i.id === itemId);
+      if (!found) return;
+      appState.build[catId] = found;
+      renderCategoryTabs();
+      renderCatalogItems();
+      renderSchematicSlots();
+      updateWorkbenchCostAndSlots();
+    }
+
+    function clearCurrentCategorySlot() {
+      const catId = appState.activeCategory;
+      appState.build[catId] = null;
+      renderCategoryTabs();
+      renderCatalogItems();
+      renderSchematicSlots();
+      updateWorkbenchCostAndSlots();
+    }
+
+    function resetAllSlots() {
+      Object.keys(appState.build).forEach(k => {
+        appState.build[k] = null;
+      });
+      renderCategoryTabs();
+      renderCatalogItems();
+      renderSchematicSlots();
+      updateWorkbenchCostAndSlots();
+      showToast("Semua slot komponen telah dikosongkan.");
+    }
+
+    function renderSchematicSlots() {
+      const grid = document.getElementById("schematicGrid");
+      grid.innerHTML = CATEGORIES.map(cat => {
+        const part = appState.build[cat.id];
+        const isActive = appState.activeCategory === cat.id;
+        return `
+          <button
+            type="button"
+            onclick="selectCategory('${cat.id}')"
+            class="p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+              part ? "slot-filled" : "bg-slate-50/70 border-slate-200 border-dashed"
+            } ${isActive ? "ring-2 ring-indigo-500/30" : ""}"
+          >
+            <div class="flex items-center justify-between w-full mb-1">
+              <span class="font-mono text-[10px] uppercase font-bold ${part ? "text-sky-700" : "text-slate-400"}">${cat.short}</span>
+              <i data-lucide="${cat.icon}" class="w-3.5 h-3.5 ${part ? "text-sky-600" : "text-slate-400"}"></i>
+            </div>
+            <div class="text-[11px] font-semibold truncate w-full ${part ? "text-slate-900" : "text-slate-400 italic"}">
+              ${part ? part.name : "Kosong"}
+            </div>
+          </button>
+        `;
+      }).join("");
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function updateWorkbenchCostAndSlots() {
+      let totalCost = 0;
+      let filledCount = 0;
+      CATEGORIES.forEach(cat => {
+        const part = appState.build[cat.id];
+        if (part) {
+          totalCost += part.price;
+          filledCount += 1;
+        }
+      });
+
+      const costEl = document.getElementById("wbCurrentCost");
+      costEl.textContent = formatRupiah(totalCost);
+      if (appState.selectedJob && totalCost > appState.selectedJob.budgetMax) {
+        costEl.className = "text-sm font-mono font-bold text-rose-400";
+      } else {
+        costEl.className = "text-sm font-mono font-bold text-emerald-400";
+      }
+
+      document.getElementById("wbSlotCount").textContent = filledCount + " / 8 Terpasang";
+    }
+
+    // ================= 9. LOGIKA PENILAIAN & PENALTI -30 KOMPUTER MATI =================
+    function openConfirmSubmitModal() {
+      let filledCount = 0;
+      CATEGORIES.forEach(c => {
+        if (appState.build[c.id]) filledCount++;
+      });
+      const warnEl = document.getElementById("modalSlotWarning");
+      warnEl.textContent = "Status Slot Saat Ini: " + filledCount + " dari 8 kategori komponen telah diisi.";
+      const modal = document.getElementById("confirmSubmitModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeConfirmSubmitModal() {
+      const modal = document.getElementById("confirmSubmitModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function computeEvaluation() {
+      const job = appState.selectedJob;
+      const b = appState.build;
+      const rules = job.rules;
+
+      const logs = [];
+      const fatalReasons = [];
+
+      // Estimasi Daya Total (Base board/fans 45W + CPU TDP + GPU TDP)
+      const cpuTdp = b.cpu ? b.cpu.tdp : 0;
+      const gpuTdp = b.gpu ? b.gpu.tdp : 0;
+      const estimatedWatt = (b.cpu || b.mobo) ? (45 + cpuTdp + gpuTdp) : 0;
+
+      // 1. CEK KOMPONEN UTAMA & KOMPATIBILITAS DASAR (APAKAH KOMPUTER BISA HIDUP / POST?)
+      const missingCore = [];
+      if (!b.cpu) missingCore.push("Prosesor (CPU)");
+      if (!b.mobo) missingCore.push("Motherboard");
+      if (!b.ram) missingCore.push("Memori (RAM)");
+      if (!b.storage) missingCore.push("Penyimpanan (Storage)");
+      if (!b.psu) missingCore.push("Power Supply (PSU)");
+      if (!b.cooler) missingCore.push("Pendingin CPU (Cooler)");
+
+      if (missingCore.length > 0) {
+        fatalReasons.push("Komponen utama belum dipasang: " + missingCore.join(", ") + ".");
+      }
+
+      // Cek kecocokan soket CPU & Motherboard
+      if (b.cpu && b.mobo && b.cpu.socket !== b.mobo.socket) {
+        fatalReasons.push(`Soket CPU (${b.cpu.socket}) tidak cocok dengan soket Motherboard (${b.mobo.socket}).`);
+      }
+
+      // Cek kecocokan generasi RAM & Motherboard
+      if (b.ram && b.mobo && b.ram.ramType !== b.mobo.ramType) {
+        fatalReasons.push(`Tipe modul RAM (${b.ram.ramType}) tidak dapat dipasang pada slot Motherboard (${b.mobo.ramType}).`);
+      }
+
+      // Cek keberadaan Output Video (iGPU vs Dedicated GPU)
+      const hasDedicatedGpu = b.gpu && b.gpu.isDedicated;
+      const hasCpuIgpu = b.cpu && b.cpu.hasIGPU;
+      if (b.cpu && !hasDedicatedGpu && !hasCpuIgpu) {
+        fatalReasons.push(`Prosesor ${b.cpu.name} tidak memiliki iGPU (Seri F) dan Anda tidak memasang kartu grafis (GPU) tambahan, sehingga layar tidak menampilkan gambar (No Display / Gagal POST).`);
+      }
+
+      // Cek kecukupan daya PSU
+      if (b.psu && b.psu.watt < estimatedWatt) {
+        fatalReasons.push(`Kapasitas PSU (${b.psu.watt}W) lebih kecil dari beban puncak sistem (~${estimatedWatt}W), menyebabkan komputer mati mendadak saat dinyalakan.`);
+      }
+
+      const systemCanBoot = fatalReasons.length === 0;
+      const bootPenalty = systemCanBoot ? 0 : -30;
+
+      if (!systemCanBoot) {
+        logs.push({
+          type: "penalty",
+          title: "PENALTI KOMPUTER GAGAL MENYALA (NO POST / SYSTEM DEAD)",
+          points: "-30 Poin",
+          desc: fatalReasons.join(" ")
+        });
+      } else {
+        logs.push({
+          type: "success",
+          title: "UJI NYALA (POST) BERHASIL — KOMPUTER MENYALA NORMAL",
+          points: "0 Penalti",
+          desc: `Seluruh komponen utama lengkap, soket ${b.cpu.socket} & memori ${b.ram.ramType} kompatibel, jalur grafis tersedia, dan daya PSU (${b.psu.watt}W) mencukupi beban sistem (~${estimatedWatt}W).`
+        });
+      }
+
+      // 2. SKOR KECOCOKAN CPU (Maks 25 Poin)
+      let cpuScore = 0;
+      if (!b.cpu) {
+        cpuScore = 0;
+        logs.push({ type: "error", title: "Prosesor (CPU) Kosong", points: "0 / 25", desc: "Anda tidak memilih prosesor." });
+      } else {
+        if (rules.idealCpuTier.includes(b.cpu.tier)) {
+          cpuScore = 25;
+          logs.push({ type: "success", title: "Pemilihan Prosesor (CPU) Sangat Tepat", points: "25 / 25", desc: `${b.cpu.name} sangat sesuai dengan tingkat beban kerja ${job.title}.` });
+        } else if (b.cpu.tier < rules.minCpuTier) {
+          const diff = rules.minCpuTier - b.cpu.tier;
+          cpuScore = Math.max(5, 25 - diff * 9);
+          logs.push({ type: "warn", title: "Prosesor (CPU) Kurang Bertenaga (Under-Spec)", points: `${cpuScore} / 25`, desc: `${b.cpu.name} terlalu lemah untuk beban aplikasi ${job.title}, berpotensi bottleneck.` });
+        } else {
+          // Overkill
+          cpuScore = 18;
+          logs.push({ type: "warn", title: "Prosesor (CPU) Berlebihan (Over-Spec)", points: "18 / 25", desc: `${b.cpu.name} kencang, namun melebihi kebutuhan riil ${job.title} sehingga kurang efisien secara biaya.` });
+        }
+      }
+
+      // 3. SKOR KECOCOKAN GPU (Maks 25 Poin)
+      let gpuScore = 0;
+      const chosenGpuTier = b.gpu ? b.gpu.tier : 0;
+      if (!b.gpu && (!b.cpu || !b.cpu.hasIGPU)) {
+        gpuScore = 0;
+        logs.push({ type: "error", title: "Kartu Grafis (GPU) Tidak Tersedia", points: "0 / 25", desc: "Tidak ada pengolah grafis yang aktif pada sistem." });
+      } else if (rules.idealGpuTier.includes(chosenGpuTier)) {
+        gpuScore = 25;
+        const gpuLabel = b.gpu ? b.gpu.name : "Grafis Terintegrasi (iGPU)";
+        logs.push({ type: "success", title: "Pemilihan Kartu Grafis (GPU) Tepat Sasaran", points: "25 / 25", desc: `${gpuLabel} sudah pas untuk kebutuhan visual/komputasi ${job.title}.` });
+      } else if (chosenGpuTier < rules.minGpuTier) {
+        const diff = rules.minGpuTier - chosenGpuTier;
+        gpuScore = Math.max(4, 25 - diff * 8);
+        const gpuLabel = b.gpu ? b.gpu.name : "Tanpa GPU Dedicated";
+        logs.push({ type: "warn", title: "Kartu Grafis (GPU) Kurang Memadai", points: `${gpuScore} / 25`, desc: `${gpuLabel} kekurangan performa/VRAM untuk beban kerja ${job.title}.` });
+      } else {
+        gpuScore = 17;
+        logs.push({ type: "warn", title: "Kartu Grafis (GPU) Overkill", points: "17 / 25", desc: `GPU yang dipilih jauh melampaui kebutuhan grafis harian ${job.title}.` });
+      }
+
+      // 4. SKOR KAPASITAS RAM & STORAGE (Maks 20 Poin: 10 RAM + 10 Storage)
+      let ramScore = 0;
+      if (!b.ram) {
+        ramScore = 0;
+      } else if (b.ram.capacity >= rules.idealRamGB) {
+        ramScore = (b.ram.capacity > rules.idealRamGB * 2) ? 8 : 10;
+      } else if (b.ram.capacity >= rules.minRamGB) {
+        ramScore = 8;
+      } else {
+        ramScore = 4;
+      }
+
+      let stoScore = 0;
+      if (!b.storage) {
+        stoScore = 0;
+      } else {
+        const capOk = b.storage.capacity >= rules.minStorageGB;
+        const nvmeOk = !rules.requireNVMe || b.storage.isNVMe;
+        if (capOk && nvmeOk && b.storage.type !== "HDD") {
+          stoScore = 10;
+        } else if (b.storage.type === "HDD") {
+          stoScore = 3;
+        } else if (capOk || nvmeOk) {
+          stoScore = 6;
+        } else {
+          stoScore = 4;
+        }
+      }
+      const memStorageScore = ramScore + stoScore;
+      logs.push({
+        type: memStorageScore >= 16 ? "success" : "warn",
+        title: "Evaluasi Memori (RAM) & Penyimpanan (Storage)",
+        points: `${memStorageScore} / 20`,
+        desc: `RAM: ${b.ram ? b.ram.name : "Kosong"} (Skor ${ramScore}/10) • Storage: ${b.storage ? b.storage.name : "Kosong"} (Skor ${stoScore}/10).`
+      });
+
+      // 5. SKOR KOMPATIBILITAS, TERMAL & KELENGKAPAN CASING/PSU (Maks 15 Poin)
+      let balanceScore = 15;
+      const balanceNotes = [];
+      if (!b.case) {
+        balanceScore -= 4;
+        balanceNotes.push("Casing PC belum dipilih (-4).");
+      }
+      if (b.cpu && b.cooler && b.cooler.maxTdp < b.cpu.tdp) {
+        balanceScore -= 5;
+        balanceNotes.push(`Pendingin (${b.cooler.maxTdp}W) kurang kuat menahan panas CPU (${b.cpu.tdp}W) sehingga berisiko thermal throttling (-5).`);
+      }
+      if (b.psu && estimatedWatt > 0 && b.psu.watt < estimatedWatt * 1.2) {
+        balanceScore -= 4;
+        balanceNotes.push(`Headroom daya PSU (${b.psu.watt}W) terlalu mepet dengan estimasi beban (~${estimatedWatt}W) (-4).`);
+      }
+      if (!systemCanBoot) {
+        balanceScore = Math.max(0, balanceScore - 6);
+        balanceNotes.push("Terdapat kesalahan fatal kompatibilitas/kelengkapan komponen inti (-6).");
+      }
+      balanceScore = Math.max(0, balanceScore);
+      logs.push({
+        type: balanceScore >= 12 ? "success" : "warn",
+        title: "Keseimbangan Termal, Catu Daya & Struktur",
+        points: `${balanceScore} / 15`,
+        desc: balanceNotes.length > 0 ? balanceNotes.join(" ") : "Pendinginan prosesor, efisiensi daya PSU, dan sasis casing seimbang."
+      });
+
+      // 6. SKOR EFISIENSI ANGGARAN (Maks 15 Poin)
+      let totalCost = 0;
+      CATEGORIES.forEach(c => {
+        if (b[c.id]) totalCost += b[c.id].price;
+      });
+      let budgetScore = 0;
+      if (totalCost === 0) {
+        budgetScore = 0;
+      } else if (totalCost <= job.budgetMax) {
+        budgetScore = 15;
+        logs.push({
+          type: "success",
+          title: "Disiplin & Efisiensi Anggaran Klien",
+          points: "15 / 15",
+          desc: `Total biaya rakitan (${formatRupiah(totalCost)}) berada di dalam batas anggaran klien (${formatRupiah(job.budgetMax)}).`
+        });
+      } else {
+        const overRatio = (totalCost - job.budgetMax) / job.budgetMax;
+        if (overRatio <= 0.1) budgetScore = 10;
+        else if (overRatio <= 0.25) budgetScore = 5;
+        else budgetScore = 0;
+        logs.push({
+          type: "warn",
+          title: "Melebihi Anggaran Klien (Overbudget)",
+          points: `${budgetScore} / 15`,
+          desc: `Total rakitan (${formatRupiah(totalCost)}) melampaui anggaran maksimal ${formatRupiah(job.budgetMax)} sebesar ${formatRupiah(totalCost - job.budgetMax)}.`
+        });
+      }
+
+      const rawSubtotal = cpuScore + gpuScore + memStorageScore + balanceScore + budgetScore;
+      const finalScore = Math.max(0, Math.min(100, rawSubtotal + bootPenalty));
+
+      let gradeLetter = "E";
+      let gradeText = "Perlu Perbaikan";
+      if (finalScore >= 85) { gradeLetter = "A"; gradeText = "Sangat Memuaskan"; }
+      else if (finalScore >= 75) { gradeLetter = "B"; gradeText = "Baik"; }
+      else if (finalScore >= 60) { gradeLetter = "C"; gradeText = "Cukup"; }
+      else if (finalScore >= 45) { gradeLetter = "D"; gradeText = "Kurang"; }
+
+      return {
+        systemCanBoot,
+        fatalReasons,
+        bootPenalty,
+        estimatedWatt,
+        totalCost,
+        cpuScore,
+        gpuScore,
+        memStorageScore,
+        balanceScore,
+        budgetScore,
+        rawSubtotal,
+        finalScore,
+        gradeLetter,
+        gradeText,
+        logs
+      };
+    }
+
+    function evaluateBuildAndShowResult() {
+      closeConfirmSubmitModal();
+      const evalResult = computeEvaluation();
+      appState.lastEvaluation = evalResult;
+
+      renderStep4Results(evalResult);
+      document.getElementById("navStep4").disabled = false;
+      jumpToStep(4);
+    }
+
+    function renderStep4Results(ev) {
+      document.getElementById("finalScoreValue").textContent = ev.finalScore;
+      document.getElementById("finalGradeBadge").textContent = `Grade ${ev.gradeLetter} — ${ev.gradeText}`;
+
+      // Boot status banner
+      const bootBox = document.getElementById("bootStatusBox");
+      const bootIcon = document.getElementById("bootStatusIcon");
+      const bootTitle = document.getElementById("bootStatusTitle");
+      const bootSub = document.getElementById("bootStatusSub");
+
+      if (ev.systemCanBoot) {
+        bootBox.className = "mt-5 w-full p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 text-left flex items-center gap-3";
+        bootIcon.className = "w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0";
+        bootIcon.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i>';
+        bootTitle.textContent = "STATUS: KOMPUTER MENYALA (POST OK)";
+        bootSub.textContent = "Tidak ada penalti komponen utama (0 Poin Pengurangan)";
+      } else {
+        bootBox.className = "mt-5 w-full p-3.5 rounded-xl border border-rose-500/50 bg-rose-500/15 text-rose-200 text-left flex items-center gap-3";
+        bootIcon.className = "w-9 h-9 rounded-lg bg-rose-500/30 text-rose-300 flex items-center justify-center shrink-0";
+        bootIcon.innerHTML = '<i data-lucide="alert-triangle" class="w-5 h-5"></i>';
+        bootTitle.textContent = "STATUS: KOMPUTER GAGAL HIDUP (PENALTI -30)";
+        bootSub.textContent = "Komponen inti terlupa atau tidak kompatibel saat uji nyala.";
+      }
+
+      // Auto Filename
+      const filename = getAutoMarkdownFilename();
+      document.getElementById("autoMdFilename").textContent = filename;
+
+      // Metric Bars
+      const metrics = [
+        { label: "Kesesuaian Prosesor (CPU)", score: ev.cpuScore, max: 25, color: "bg-sky-500" },
+        { label: "Kesesuaian Grafis (GPU)", score: ev.gpuScore, max: 25, color: "bg-indigo-500" },
+        { label: "Kapasitas RAM & Storage", score: ev.memStorageScore, max: 20, color: "bg-cyan-500" },
+        { label: "Keseimbangan Termal & Daya", score: ev.balanceScore, max: 15, color: "bg-teal-500" },
+        { label: "Efisiensi Anggaran Klien", score: ev.budgetScore, max: 15, color: "bg-emerald-500" },
+        { label: "Penalti Kegagalan Booting", score: ev.bootPenalty, max: 0, isPenalty: true }
+      ];
+
+      document.getElementById("metricBarsContainer").innerHTML = metrics.map(m => {
+        if (m.isPenalty) {
+          return `
+            <div class="p-3 rounded-xl border ${m.score < 0 ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-slate-50 border-slate-200 text-slate-600"}">
+              <div class="flex items-center justify-between text-xs font-bold">
+                <span>${m.label}</span>
+                <span class="font-mono">${m.score} Poin</span>
+              </div>
+              <div class="text-[11px] mt-1 opacity-80">${m.score < 0 ? "Komputer tidak dapat menyala (-30 poin)" : "Komputer menyala normal (0 penalti)"}</div>
+            </div>
+          `;
+        }
+        const pct = Math.round((m.score / m.max) * 100);
+        return `
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-800 mb-1.5">
+              <span>${m.label}</span>
+              <span class="font-mono text-sky-700">${m.score} / ${m.max}</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+              <div class="${m.color} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Evaluation Logs
+      document.getElementById("evaluationLogsList").innerHTML = ev.logs.map(item => {
+        let style = "bg-slate-50 border-slate-200 text-slate-800";
+        let badge = "bg-slate-200 text-slate-700";
+        if (item.type === "penalty" || item.type === "error") {
+          style = "bg-rose-50/90 border-rose-200 text-rose-900";
+          badge = "bg-rose-600 text-white";
+        } else if (item.type === "warn") {
+          style = "bg-amber-50/90 border-amber-200 text-amber-900";
+          badge = "bg-amber-500 text-white";
+        } else if (item.type === "success") {
+          style = "bg-emerald-50/80 border-emerald-200 text-emerald-900";
+          badge = "bg-emerald-600 text-white";
+        }
+        return `
+          <div class="p-3.5 rounded-2xl border ${style}">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-xs font-extrabold">${item.title}</span>
+              <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${badge} shrink-0">${item.points}</span>
+            </div>
+            <p class="text-xs opacity-90 leading-relaxed">${item.desc}</p>
+          </div>
+        `;
+      }).join("");
+
+      // Summary Parts Table
+      document.getElementById("summaryTotalPower").textContent = `Est. Beban Daya: ~${ev.estimatedWatt}W`;
+      const tbody = document.getElementById("summaryPartsTableBody");
+      tbody.innerHTML = CATEGORIES.map(cat => {
+        const p = appState.build[cat.id];
+        return `
+          <tr>
+            <td class="py-2.5 pr-2 font-mono font-bold text-slate-700">${cat.short}</td>
+            <td class="py-2.5 px-2 font-semibold ${p ? "text-slate-900" : "text-rose-600 italic"}">${p ? p.name : "TIDAK DIPASANG (KOSONG)"}</td>
+            <td class="py-2.5 px-2 text-slate-500">${p ? p.spec : "-"}</td>
+            <td class="py-2.5 pl-2 text-right font-mono font-semibold text-slate-800">${p ? formatRupiah(p.price) : "Rp 0"}</td>
+          </tr>
+        `;
+      }).join("") + `
+        <tr class="bg-slate-50 font-bold border-t-2 border-slate-300">
+          <td colspan="3" class="py-3 px-2 text-slate-900">TOTAL BIAYA RAKITAN (Anggaran Klien: ${formatRupiah(appState.selectedJob.budgetMax)})</td>
+          <td class="py-3 pl-2 text-right font-mono text-sky-700">${formatRupiah(ev.totalCost)}</td>
+        </tr>
+      `;
+
+      // Markdown Preview
+      const mdContent = generateMarkdownDocument();
+      document.getElementById("markdownPreviewBox").textContent = mdContent;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function returnToWorkbench() {
+      jumpToStep(3);
+    }
+
+    // ================= 10. AUTO MARKDOWN (.MD) GENERATOR & DOWNLOAD =================
+    function getAutoMarkdownFilename() {
+      const cleanName = (appState.student.nama || "Mahasiswa").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "");
+      const cleanNpm = (appState.student.npm || "NPM").replace(/[^a-zA-Z0-9]+/g, "");
+      const cleanJurusan = (appState.student.jurusan || "Jurusan").replace(/[^a-zA-Z0-9]+/g, "_");
+      return `Ujian_RakitPC_${cleanName}_${cleanNpm}_${cleanJurusan}.md`;
+    }
+
+    function generateMarkdownDocument() {
+      const s = appState.student;
+      const job = appState.selectedJob;
+      const ev = appState.lastEvaluation;
+      const nowStr = new Date().toLocaleString("id-ID", { dateStyle: "full", timeStyle: "short" });
+
+      const partRows = CATEGORIES.map(cat => {
+        const p = appState.build[cat.id];
+        if (!p) {
+          return `| ${cat.name} | **TIDAK DIPASANG (KOSONG)** | - | Rp 0 |`;
+        }
+        return `| ${cat.name} | ${p.name} | ${p.spec} | ${formatRupiah(p.price)} |`;
+      }).join("\n");
+
+      const logBullets = ev.logs.map(l => `- **[${l.points}] ${l.title}**: ${l.desc}`).join("\n");
+      const rolledList = appState.rolledJobs.map((j, i) => `${i + 1}. ${j.id} - ${j.title} (Anggaran: ${formatRupiah(j.budgetMax)})`).join("\n");
+
+      return `# LEMBAR JAWABAN UJIAN PRAKTIK: SIMULASI RAKIT KOMPUTER
+**Mata Kuliah:** Arsitektur dan Jaringan Komputer  
+**Dosen Pengampu:** Rendy Almaheri Adhi Pratama, S.Kom., M.Kom.  
+**Waktu Pengujian:** ${nowStr}
+
+---
+
+## 1. IDENTITAS MAHASISWA
+- **Nama Lengkap:** ${s.nama}
+- **NPM:** ${s.npm}
+- **Program Studi / Jurusan:** ${s.jurusan}
+
+---
+
+## 2. SKENARIO PEKERJAAN TERPILIH (HASIL UNDIAN ACAK)
+- **Kode & Nama Pekerjaan:** ${job.id} — ${job.title}
+- **Profil Klien:** ${job.persona}
+- **Kelas Target Kebutuhan:** ${job.rules.tierName}
+- **Batas Anggaran Maksimal:** ${formatRupiah(job.budgetMax)}
+- **Deskripsi Pekerjaan:** ${job.description}
+
+### Riwayat Undian Skenario (Maksimal 3x):
+${rolledList}
+
+---
+
+## 3. DAFTAR KOMPONEN RAKITAN MAHASISWA
+| Kategori Slot | Komponen Terpilih | Spesifikasi Teknis | Harga Satuan |
+| :--- | :--- | :--- | ---: |
+${partRows}
+| **TOTAL** | **Estimasi Beban Daya: ~${ev.estimatedWatt}W** | **Batas Anggaran: ${formatRupiah(job.budgetMax)}** | **${formatRupiah(ev.totalCost)}** |
+
+---
+
+## 4. HASIL UJI NYALA (POST) & RINCIAN PENILAIAN OTOMATIS
+- **Status Uji Nyala (POST):** ${ev.systemCanBoot ? "BERHASIL MENYALA (NORMAL)" : "GAGAL MENYALA / MATI (PENALTI -30 POIN)"}
+- **Skor Kesesuaian CPU:** ${ev.cpuScore} / 25
+- **Skor Kesesuaian GPU:** ${ev.gpuScore} / 25
+- **Skor Memori (RAM) & Storage:** ${ev.memStorageScore} / 20
+- **Skor Keseimbangan Termal & Daya:** ${ev.balanceScore} / 15
+- **Skor Efisiensi Anggaran:** ${ev.budgetScore} / 15
+- **Penalti Komponen Utama / Booting:** ${ev.bootPenalty} Poin
+- **NILAI AKHIR:** **${ev.finalScore} / 100 (Grade ${ev.gradeLetter} — ${ev.gradeText})**
+
+### Catatan Koreksi Sistem:
+${logBullets}
+`;
+    }
+
+    function downloadMarkdownReport() {
+      if (!appState.lastEvaluation) return;
+      const content = generateMarkdownDocument();
+      const filename = getAutoMarkdownFilename();
+      const blob = new Blob([content], { type: "text/markdown;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Berhasil mengunduh: " + filename);
+    }
+
+    function copyMarkdownSource() {
+      if (!appState.lastEvaluation) return;
+      const content = generateMarkdownDocument();
+      const ta = document.createElement("textarea");
+      ta.value = content;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Isi dokumen Markdown berhasil disalin ke clipboard!");
+      } catch (e) {
+        showToast("Gagal menyalin otomatis, silakan salin dari kotak pratinjau.");
+      }
+      document.body.removeChild(ta);
+    }
+
+    // ================= 11. NAVIGATION CONTROLLER =================
+    function jumpToStep(stepNum) {
+      if (stepNum === 2 && (!appState.student.nama || !appState.student.npm || !appState.student.jurusan)) return;
+      if (stepNum === 3 && !appState.selectedJob) return;
+      if (stepNum === 4 && !appState.lastEvaluation) return;
+
+      appState.currentStep = stepNum;
+
+      const sections = {
+        1: document.getElementById("step1Section"),
+        2: document.getElementById("step2Section"),
+        3: document.getElementById("step3Section"),
+        4: document.getElementById("step4Section")
+      };
+
+      Object.keys(sections).forEach(k => {
+        if (Number(k) === stepNum) {
+          sections[k].classList.remove("hidden");
+        } else {
+          sections[k].classList.add("hidden");
+        }
+      });
+
+      // Student banner visibility
+      const studentBar = document.getElementById("activeStudentBar");
+      if (stepNum >= 2) {
+        studentBar.classList.remove("hidden");
+      } else {
+        studentBar.classList.add("hidden");
+      }
+
+      // Update Nav Buttons
+      [1, 2, 3, 4].forEach(n => {
+        const btn = document.getElementById("navStep" + n);
+        if (n === stepNum) {
+          btn.className = "px-2.5 py-1 rounded-lg transition-all bg-white text-sky-600 shadow-sm font-semibold flex items-center gap-1";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-lg transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1 disabled:opacity-40";
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>
